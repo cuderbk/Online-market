@@ -5,7 +5,7 @@ from tour.models import Tour
 
 @login_required
 def index(request):
-    tours = Tour.objects.filter(created_by=request.user)
+    tours = Tour.objects.all() #use filter alreaddy
 
     return render(request, 'dashboard/index.html', {
         'tours': Tour,

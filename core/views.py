@@ -5,7 +5,7 @@ from tour.models import Category, Tour
 from .forms import SignupForm
 
 def index(request):
-    tours = Tour.objects.filter(is_sold=False)[0:6]
+    tours = Tour.objects.all()[0:6]
     categories = Category.objects.all()
 
     return render(request, 'core/index.html', {

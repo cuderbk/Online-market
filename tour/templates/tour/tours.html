@@ -14,7 +14,6 @@
             <hr class="my-6">
 
             <p class="font-semibold">Categories</p>
-
             <ul>
                 {% for category in categories %}
                     <li class="py-2 px-2 rounded-xl{% if category.id == category_id %} bg-gray-200{% endif %}">
@@ -22,6 +21,7 @@
                     </li>
                 {% endfor %}
             </ul>
+            
 
             <hr class="my-6">
 
@@ -35,19 +35,27 @@
             <div class="grid grid-cols-3 gap-3">
                 {% for tour in tours %}
                     <div>
-                        <a href="{% url 'tour:detail' tour.MaTour %}">
+                        {% if tour.matour %}
+                        <a href="{% url 'tour:detail' tour.matour %}">
                             <div>
-                                <img src="{{ tour.image.url }}" class="rounded-t-xl">
+                                {% if tour.info.image %}
+                                    <img src="{{ tour.info.image.url }}" class="rounded-t-xl">
+                                {% else %}
+                                    <!-- If there is no image, display a placeholder image or any other content -->
+                                    <img src="tour_images/colosseum.jpg" class="rounded-t-xl">
+                                {% endif %}
                             </div>
-    
+        
                             <div class="p-6 bg-white rounded-b-xl">
-                                <h2 class="text-2xl">{{ tour.name }}</h2>
-                                <p class="text-gray-500">Price: {{ tour.price }}</p>
+                                <h2 class="text-2xl">{{ tour.tentour }}</h2>
+                                <p class="text-gray-500">Price: {{ tour.giavelenguoilon }}</p>
                             </div>
                         </a>
+                        {%endif%}
                     </div>
                 {% endfor %}
             </div>
         </div>
-    </div>
+        
+    </div> 
 {% endblock %}

@@ -1,46 +1,29 @@
 from django import forms
 
-from .models import Tour
-
+from .models import Tour, Info, Status, City, Category
+from django.contrib.auth.models import User
 INPUT_CLASSES = 'w-full py-4 px-6 rounded-xl border'
+
 
 class NewTourForm(forms.ModelForm):
     class Meta:
         model = Tour
-        fields = ('category', 'name', 'description', 'price', 'image')
-        widgets = {
-            'category': forms.Select(attrs={
-                'class': INPUT_CLASSES
-            }),
-            'name': forms.TextInput(attrs={
-                'class': INPUT_CLASSES 
-            }),
-            'description': forms.Textarea(attrs={
-                'class': INPUT_CLASSES
-            }),
-            'price': forms.TextInput(attrs={
-                'class': INPUT_CLASSES
-            }),
-            'image': forms.FileInput(attrs={
-                'class': INPUT_CLASSES
-            })
-        }
+        fields = ('tentour', 'giavelenguoilon', 'giaveletreem', 'giavedoannguoilon', 'giavedoantreem',
+                  'sokhachtourtoithieu', 'sokhachtourtoida', 'sokhachdoantoithieu', 'sodem', 'songay', 'machinhanh')
+
+class NewTourInfoForm(forms.ModelForm):
+    class Meta:
+        model= Info
+        fields =('category','city','image','description','status')
+
 
 class EditTourForm(forms.ModelForm):
-    class Meta:
+
+     class Meta:
         model = Tour
-        fields = ('name', 'description', 'price', 'image')
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': INPUT_CLASSES
-            }),
-            'description': forms.Textarea(attrs={
-                'class': INPUT_CLASSES
-            }),
-            'price': forms.TextInput(attrs={
-                'class': INPUT_CLASSES
-            }),
-            'image': forms.FileInput(attrs={
-                'class': INPUT_CLASSES
-            })
-        }
+        fields = ('tentour', 'giavelenguoilon', 'giaveletreem', 'giavedoannguoilon', 'giavedoantreem',
+                  'sokhachtourtoithieu', 'sokhachtourtoida', 'sokhachdoantoithieu', 'sodem', 'songay', 'machinhanh')
+class EditInfoTourForm(forms.ModelForm):
+     class Meta:
+        model= Info
+        fields =('category','city','image','description','status')

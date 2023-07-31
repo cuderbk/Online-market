@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
 
-from tour.models import Tour
+from tour.models import Tour, Info
 
 from .forms import ConversationMessageForm
 from .models import Conversation
@@ -9,7 +9,7 @@ from .models import Conversation
 @login_required
 def new_conversation(request, tour_pk):
     tour = get_object_or_404(Tour, pk=tour_pk)
-
+    info = get_object_or_404(Info, matour=tour)
     if tour.created_by == request.user:
         return redirect('dashboard:index')
     
@@ -24,7 +24,7 @@ def new_conversation(request, tour_pk):
         if form.is_valid():
             conversation = Conversation.objects.create(tour=tour)
             conversation.members.add(request.user)
-            conversation.members.add(tour.created_by)
+            conversation.members.add(info.created_by)
             conversation.save()
 
             conversation_message = form.save(commit=False)
