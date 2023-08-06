@@ -35,8 +35,8 @@
             <div class="grid grid-cols-3 gap-3">
                 {% for tour in tours %}
                     <div>
-                        {% if tour.matour %}
-                        <a href="{% url 'tour:detail' tour.matour %}">
+                        {% if tour.ma_tour %}
+                        <a href="{% url 'tour:detail' tour.ma_tour %}">
                             <div>
                                 {% if tour.info.image %}
                                     <img src="{{ tour.info.image.url }}" class="rounded-t-xl">

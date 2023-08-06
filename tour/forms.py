@@ -8,22 +8,22 @@ INPUT_CLASSES = 'w-full py-4 px-6 rounded-xl border'
 class NewTourForm(forms.ModelForm):
     class Meta:
         model = Tour
-        fields = ('tentour', 'giavelenguoilon', 'giaveletreem', 'giavedoannguoilon', 'giavedoantreem',
-                  'sokhachtourtoithieu', 'sokhachtourtoida', 'sokhachdoantoithieu', 'sodem', 'songay', 'machinhanh')
+        fields = ('ten_tour','anh', 'ngay_batdau','giave_kl_nguoilon', 'giave_kl_treem', 'giave_kd_nguoilon', 'giave_kd_treem',
+                  'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
 
 class NewTourInfoForm(forms.ModelForm):
     class Meta:
         model= Info
-        fields =('category','city','image','description','status')
+        fields =('category','diemxp','diemden','description','status')
 
 
 class EditTourForm(forms.ModelForm):
 
      class Meta:
         model = Tour
-        fields = ('tentour', 'giavelenguoilon', 'giaveletreem', 'giavedoannguoilon', 'giavedoantreem',
-                  'sokhachtourtoithieu', 'sokhachtourtoida', 'sokhachdoantoithieu', 'sodem', 'songay', 'machinhanh')
-class EditInfoTourForm(forms.ModelForm):
+        model = Tour
+        fields = ('ten_tour','anh', 'ngay_batdau','giave_kl_nguoilon', 'giave_kl_treem', 'giave_kd_nguoilon', 'giave_kd_treem',
+                  'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
      class Meta:
         model= Info
-        fields =('category','city','image','description','status')
+        fields =('category','diemxp','diemden','description','status')

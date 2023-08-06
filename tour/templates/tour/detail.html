@@ -21,9 +21,9 @@
                 <!-- Display related items -->
                 <h2 class="text-xl font-semibold">Related Items</h2>
                 <ul>
-                    {% for item in related_items %}
+                    {% for tour in related_tours %}
                         <li>
-                            <a href="{% url 'tour:detail' item.pk %}">{{ item.tentour }}</a>
+                            <a href="{% url 'tour:detail' tour.pk %}">{{ tour.ten_tour }}</a>
                         </li>
                     {% endfor %}
                 </ul>
