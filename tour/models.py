@@ -182,7 +182,7 @@ class Lichtrinhtour(models.Model):
 
 
 class NgaykhoihanhTourdai(models.Model):
-    ma_tour = models.OneToOneField('Tour', models.DO_NOTHING, db_column='ma_tour', primary_key=True)
+    ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
     ngay = models.IntegerField()
 
     class Meta:
@@ -205,19 +205,7 @@ class SoDienThoaiChiNhanh(models.Model):
 
 
 # Signal to generate ma_tour before saving the Tour object
-# Signal to generate ma_tour before saving the Tour object
-def increment_tour_pk():
-    last_tour = Tour.objects.all().order_by('ma_tour').last()
 
-    if not last_tour:
-        return 'CN1' + '000001'
-
-    # help_id = last_tour.help_num
-    # help_int = help_id[13:17]
-    # new_help_int = int(help_int) + 1
-    new_help_id = 'CN1' + '000002'
-
-    return new_help_id
 
 class Tour(models.Model):
     ma_tour = models.CharField(primary_key=True, max_length=12)
@@ -330,3 +318,14 @@ class Info(models.Model):
 
     def __str__(self):
         return str(self.tour)
+class MultiStepFormModel(models.Model):
+    id=models.AutoField(primary_key=True)
+    fname=models.CharField(max_length=255)
+    lname=models.CharField(max_length=255)
+    phone=models.CharField(max_length=255)
+    twitter=models.CharField(max_length=255)
+    facebook=models.CharField(max_length=255)
+    gplus=models.CharField(max_length=255)
+    email=models.CharField(max_length=255)
+    password=models.CharField(max_length=255)
+    objects=models.Manager()

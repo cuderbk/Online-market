@@ -1,30 +1,46 @@
 {% extends 'core/base.html' %}
+{%load crispy_forms_tags%}
+{% load i18n %}
 
 {% block title %}{{ title }}{% endblock %}
+{%block head%}
+{{wizard.form.media}}
+{%endblock%}
 
 {% block content %}
-<h1 class="mb-6 text-3xl">{{ title }}</h1>
+<!-- MultiStep Form -->
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        {%crispy form%}
+        <ul id="progressbar">
+            <li class="active">Tour</li>
+            <li>Social Profiles</li>
+            {% comment %} <li>Account Setup</li> {% endcomment %}
+        </ul>
 
-<form method="post" action="." enctype="multipart/form-data">
-    {% csrf_token %}
-
-    <div class="space-y-4">
-        {% csrf_token %}
-        {{ tour_form }}
-        {{ tour_info_form }}
-        
-    </div>
-
-    {% if form.errors or form.non_field_errors %}
-        <div class="mb-3 p-6 bg-red-100 rounded-xl">
-            {% for field in form %}
-                {{ field.errors }}
-            {% endfor %}
-
-            {{ form.non_field_errors }}
+        <form id="msform" action ="" method = "POST">
+        <table>
+            {% csrf_token %}
+            {{wizard.management_form}}
+            {%if wizard.form.forms%}
+                {{wizard.form.management_form}}
+                {%for form in wizard.form.forms%}
+                    {{form|crispy}}
+                {%endfor%}
+            {% comment %} {%else%}
+                {{ wizard.form|crispy}} {% endcomment %}
+            {%endif%}
+            </table>
+            {%if wizard.steps.prev%}
+            <button name ='wizard_goto_step' type ='submit' value ="{{wizard.step.first}}">{%trans "first step"%}</button>
+            <button name ='wizard_goto_step' type ='submit' value ="{{wizard.step.prev}}">{%trans "prev step"%}</button>
+            {%endif%}
+        <input type ="submit" value = "{%trans "submit"%}"/>
+        </form>
+        <div class="dme_link">
+            <p><a href="http://designify.me/code-snippets-js/" target="_blank">More Code Snippets</a></p>
         </div>
-    {% endif %}
-
-    <button class="mt-6 py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Submit</button>
-</form>
+    </div>
+</div>
+<!-- /.MultiStep Form -->
 {% endblock %}

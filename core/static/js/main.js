@@ -1,134 +1,81 @@
-$(function() {
-    "use strict";
+//jQuery time
+var current_fs, next_fs, previous_fs; //fieldsets
+var left, opacity, scale; //fieldset properties which we will animate
+var animating; //flag to prevent quick multi-click glitches
 
-    //------- video popup -------//
-    $(".play-btn").magnificPopup({
-      disableOn: 700,
-      type: "iframe",
-      mainClass: "mfp-fade",
-      removalDelay: 160,
-      preloader: false,
-      fixedContentPos: false
+$(".next").click(function() {
+    if (animating) return false;
+    animating = true;
+
+    current_fs = $(this).parent();
+    next_fs = $(this).parent().next();
+
+    //activate next step on progressbar using the index of next_fs
+    $("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+
+    //show the next fieldset
+    next_fs.show();
+    //hide the current fieldset with style
+    current_fs.animate({ opacity: 0 }, {
+        step: function(now, mx) {
+            //as the opacity of current_fs reduces to 0 - stored in "now"
+            //1. scale current_fs down to 80%
+            scale = 1 - (1 - now) * 0.2;
+            //2. bring next_fs from the right(50%)
+            left = (now * 50) + "%";
+            //3. increase opacity of next_fs to 1 as it moves in
+            opacity = 1 - now;
+            current_fs.css({
+                'transform': 'scale(' + scale + ')',
+                'position': 'absolute'
+            });
+            next_fs.css({ 'left': left, 'opacity': opacity });
+        },
+        duration: 800,
+        complete: function() {
+            current_fs.hide();
+            animating = false;
+        },
+        //this comes from the custom easing plugin
+        easing: 'easeInOutBack'
     });
-
-
-    //------- Lightbox  js --------//  
-    $('.img-gal').magnificPopup({
-      type: 'image',
-      gallery: {
-          enabled: true
-      }
-    });
-
-    //------- testimonial carousel --------//  
-    if($('.owl-carousel').length > 0){
-      $('.testi-carousel').owlCarousel({
-        loop:true,
-        autoplay: true,
-        margin:30,
-        smartSpeed: 600,
-        nav:false,
-        dots: true,
-        responsive:{
-          0:{
-            items:1
-          },
-          800:{
-            items:2
-          },
-          1000:{
-            items:3
-          }
-        }
-      })
-    }
-
-
-  //------- initialize menu --------//    
-  $('.nav-menu').superfish({
-    animation: {
-      opacity: 'show'
-    },
-    speed: 400
-  });
-
-  //* Navbar Fixed
-  var window_width = $(window).width(),
-		window_height = window.innerHeight,
-		header_height = $('.default-header').height(),
-		header_height_static = $('.site-header.static').outerHeight(),
-		fitscreen = window_height - header_height;
-
-	$('.fullscreen').css('height', window_height);
-	$('.fitscreen').css('height', fitscreen);
-	var nav_offset_top = $('header').height() + 50;
-	function navbarFixed() {
-		if ($('.header_area').length) {
-			$(window).scroll(function() {
-				var scroll = $(window).scrollTop();
-				if (scroll >= nav_offset_top) {
-					$('.header_area').addClass('navbar_fixed');
-				} else {
-					$('.header_area').removeClass('navbar_fixed');
-				}
-			});
-		}
-	}
-	navbarFixed();
-
-  
-  //------- mobile navigation --------//  
-  if ($('#nav-menu-container').length) {
-    var $mobile_nav = $('#nav-menu-container').clone().prop({
-      id: 'mobile-nav'
-    });
-    $mobile_nav.find('> ul').attr({
-      'class': '',
-      'id': ''
-    });
-    $('body').append($mobile_nav);
-    $('body').prepend('<button type="button" id="mobile-nav-toggle"><i class="lnr lnr-menu"></i></button>');
-    $('body').append('<div id="mobile-body-overly"></div>');
-    $('#mobile-nav').find('.menu-has-children').prepend('<i class="lnr lnr-chevron-down"></i>');
-
-    $(document).on('click', '.menu-has-children i', function(e) {
-      $(this).next().toggleClass('menu-item-active');
-      $(this).nextAll('ul').eq(0).slideToggle();
-      $(this).toggleClass("lnr-chevron-up lnr-chevron-down");
-    });
-
-    $(document).on('click', '#mobile-nav-toggle', function(e) {
-      $('body').toggleClass('mobile-nav-active');
-      $('#mobile-nav-toggle i').toggleClass('lnr-cross lnr-menu');
-      $('#mobile-body-overly').toggle();
-    });
-
-    $(document).click(function(e) {
-      var container = $("#mobile-nav, #mobile-nav-toggle");
-      if (!container.is(e.target) && container.has(e.target).length === 0) {
-        if ($('body').hasClass('mobile-nav-active')) {
-          $('body').removeClass('mobile-nav-active');
-          $('#mobile-nav-toggle i').toggleClass('lnr-cross lnr-menu');
-          $('#mobile-body-overly').fadeOut();
-        }
-      }
-    });
-  } else if ($("#mobile-nav, #mobile-nav-toggle").length) {
-    $("#mobile-nav, #mobile-nav-toggle").hide();
-  }
-
-  //------- Active Nice Select --------//
-  $('select').niceSelect();
-
-  //------- mailchimp --------//  
-	function mailChimp() {
-		$('#mc_embed_signup').find('form').ajaxChimp();
-	}
-	mailChimp();
-	function mailChimp2() {
-		$('#mc_embed_signup2').find('form').ajaxChimp();
-	}
-	mailChimp2();
-  
 });
 
+$(".previous").click(function() {
+    if (animating) return false;
+    animating = true;
+
+    current_fs = $(this).parent();
+    previous_fs = $(this).parent().prev();
+
+    //de-activate current step on progressbar
+    $("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+
+    //show the previous fieldset
+    previous_fs.show();
+    //hide the current fieldset with style
+    current_fs.animate({ opacity: 0 }, {
+        step: function(now, mx) {
+            //as the opacity of current_fs reduces to 0 - stored in "now"
+            //1. scale previous_fs from 80% to 100%
+            scale = 0.8 + (1 - now) * 0.2;
+            //2. take current_fs to the right(50%) - from 0%
+            left = ((1 - now) * 50) + "%";
+            //3. increase opacity of previous_fs to 1 as it moves in
+            opacity = 1 - now;
+            current_fs.css({ 'left': left });
+            previous_fs.css({ 'transform': 'scale(' + scale + ')', 'opacity': opacity });
+        },
+        duration: 800,
+        complete: function() {
+            current_fs.hide();
+            animating = false;
+        },
+        //this comes from the custom easing plugin
+        easing: 'easeInOutBack'
+    });
+});
+
+$(".submit").click(function() {
+    return false;
+})
