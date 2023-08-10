@@ -6,10 +6,10 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4bw+/aepP/YC94hEpVNVgiZdgIC5+VKNBQNGCHeKRQN+PtmoHDEXuppvnDJzQIu9" crossorigin="anonymous">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm" crossorigin="anonymous"></script> 
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="stylesheet" type="text/css" href="{% static "css/style.css"%}" />
-        <script type="text/javascript" src="{%static "js/main.js" %}"></script> 
+        <script type="text/javascript" href="{%static "js/main.js" %}"></script>
         <title>{% block title %}{% endblock %} | BKTourist</title>
         {%block head%}
         {%endblock%}
@@ -20,11 +20,11 @@
             <a href="/" class="text-xl font-semibold">BKTourist</a>
 
             <div class="space-x-6">
-                <a href="{% url 'tour:new' %}" class="text-lg font-semibold hover:text-gray-500">New tour</a>
+                
                 <a href="{% url 'tour:tours' %}" class="text-lg font-semibold hover:text-gray-500">Browse</a>
 
                 {% if request.user.is_authenticated %}
-                    {% comment %} <a href="{% url 'conversation:inbox' %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Inbox</a> {% endcomment %}
+                    <a href="{% url 'tour:new' %}" class="text-lg font-semibold hover:text-gray-500">New tour</a>
                     <a href="{% url 'dashboard:index' %}" class="px-6 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">Dashboard</a>
                 {% else %}
                     <a href="{% url 'core:signup' %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Sign up</a>

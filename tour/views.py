@@ -11,6 +11,9 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from .models import Category, Info, MultiStepFormModel
 from formtools.wizard.views import SessionWizardView
+from django.db.models import Case, When, IntegerField
+
+from django.db import transaction
 
 def tours(request):
     query = request.GET.get('query', '')
@@ -51,59 +54,49 @@ def detail(request, pk):
 # def show_business_form(wizard):
 #     cleaned_data = wizard.get_cleaned_data_for_step('0') or {}
 #     return cleaned_data("is_business_guest")
-FORMS = [
-    ("tour", NewTourForm),
-    ("ngaykhoihanh", NgayKhoiHanhTourForm),
-]
+# FORMS = [
+#     ("tour", NewTourForm),
+#     ("ngaykhoihanh", NgayKhoiHanhTourForm),
+# ]
 
-TEMPLATES = {
-    "tour": "'tour/form.html'",
-    "ngaykhoihanh": "your_app/ngaykhoihanh_form.html",
-}
+# TEMPLATES = {
+#     "tour": "'tour/form.html'",
+#     "ngaykhoihanh": "your_app/ngaykhoihanh_form.html",
+# }
 def get_generated_ma_tour():
     latest_tour = Tour.objects.order_by('ma_tour').last()
     if latest_tour:
         return latest_tour.ma_tour
     return None
 class NewTourView(SessionWizardView):
+    # ... (other code remains the same)
     form_list = [NewTourForm, NgayKhoiHanhTourForm]
     template_name = 'tour/form.html'
-
     def done(self, form_list, **kwargs):
         form_data = self.get_all_cleaned_data()
 
-        # tour_data = {
-        #     'ten_tour': form_data['ten_tour'],
-        #     'anh': form_data['anh'],
-        #     'ngay_batdau': form_data['ngay_batdau'],
-        #     'sokhach_toida': form_data['sokhach_toida'],
-        #     'giave_kl_nguoilon': form_data['giave_kl_nguoilon'],
-        #     'giave_kl_treem': form_data['giave_kl_treem'],
-        #     'giave_kd_nguoilon': form_data['giave_kd_nguoilon'],
-        #     'giave_kd_treem': form_data['giave_kd_treem'],
-        #     'sokhach_toithieu': form_data['sokhach_toithieu'],
-        #     'sokhachdoan_toithieu': form_data['sokhachdoan_toithieu'],
-        #     'so_dem': form_data['so_dem'],
-        #     'so_ngay': form_data['so_ngay'],
-        #     'ma_cn': form_data['ma_cn'],
-        # }
+        with transaction.atomic():
+            tour_instance = form_list[0].save()  # Save the Tour instance
+            
+            ngaykhoihanh_tourdai_data_list = []
+            
+            selected_dates = form_data['ngay']
+            for ngay in int(selected_dates):
 
-
-        tour_instance = form_list[0].cleaned_data
-        tour = tour_instance.save(commit=False)
-        tour.save()
-
-        ngaykhoihanh_data = {
-            'ma_tour':Tour.objects.order_by('ma_tour').last(),
-            'ngay': form_data['ngay'],
-            # ... populate other fields for NgaykhoihanhTourdai model
-        }
-
-        ngaykhoihanh_instance = NgaykhoihanhTourdai(**ngaykhoihanh_data)
-        ngaykhoihanh_instance.save()
-
-
+                ngaykhoihanh_tourdai_data = {
+                    'ma_tour': tour_instance,
+                    'ngay': int(ngay),
+                    # ... populate other fields for NgayKhoiHanhTourdai model
+                }
+                ngaykhoihanh_tourdai_data_list.append(ngaykhoihanh_tourdai_data)
+            
+            NgaykhoihanhTourdai.objects.bulk_create([
+                NgaykhoihanhTourdai(**data) for data in ngaykhoihanh_tourdai_data_list
+            ])
+        
         return HttpResponse('Form submitted')
+
+
 
 @login_required
 def edit(request, pk):

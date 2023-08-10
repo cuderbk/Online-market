@@ -1,46 +1,185 @@
 {% extends 'core/base.html' %}
-{%load crispy_forms_tags%}
+{% load crispy_forms_tags %}
 {% load i18n %}
-
+{%load static%}
+<link rel="stylesheet" href="{% static 'style.css' %}">
 {% block title %}{{ title }}{% endblock %}
-{%block head%}
-{{wizard.form.media}}
-{%endblock%}
+{% block head %}
+{{ wizard.form.media }}
+{% endblock %}
 
 {% block content %}
-<!-- MultiStep Form -->
-<div class="row">
-    <div class="col-md-6 col-md-offset-3">
-        {%crispy form%}
-        <ul id="progressbar">
-            <li class="active">Tour</li>
-            <li>Social Profiles</li>
-            {% comment %} <li>Account Setup</li> {% endcomment %}
-        </ul>
+<style type="text/css">
+    /* style.css */
 
-        <form id="msform" action ="" method = "POST">
-        <table>
-            {% csrf_token %}
-            {{wizard.management_form}}
-            {%if wizard.form.forms%}
-                {{wizard.form.management_form}}
-                {%for form in wizard.form.forms%}
-                    {{form|crispy}}
-                {%endfor%}
-            {% comment %} {%else%}
-                {{ wizard.form|crispy}} {% endcomment %}
-            {%endif%}
-            </table>
-            {%if wizard.steps.prev%}
-            <button name ='wizard_goto_step' type ='submit' value ="{{wizard.step.first}}">{%trans "first step"%}</button>
-            <button name ='wizard_goto_step' type ='submit' value ="{{wizard.step.prev}}">{%trans "prev step"%}</button>
-            {%endif%}
-        <input type ="submit" value = "{%trans "submit"%}"/>
-        </form>
-        <div class="dme_link">
-            <p><a href="http://designify.me/code-snippets-js/" target="_blank">More Code Snippets</a></p>
+
+    /* Form container */
+
+    .form-container {
+        width: 50%;
+        margin: 2rem auto;
+        padding: 2rem;
+        background-color: #f7f7f7;
+        border-radius: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+
+    /* Form heading */
+
+    .form-heading {
+        margin-bottom: 1.5rem;
+        font-size: 2.5rem;
+        font-weight: bold;
+        font-family: 'Helvetica Neue', sans-serif;
+        color: #333;
+    }
+
+
+    /* Step description */
+
+    .step-description {
+        margin-top: 0.5rem;
+        font-size: 1.2rem;
+        color: #666;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+
+
+    /* Form field */
+
+    .form-field {
+        margin-bottom: 2rem;
+    }
+
+    .form-label {
+        font-size: 1.2rem;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 0.5rem;
+        color: #333;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 0.25rem;
+        font-size: 1rem;
+        font-family: 'Helvetica Neue', sans-serif;
+        transition: border-color 0.3s ease;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: #48bb78;
+        box-shadow: 0 0 4px rgba(72, 187, 120, 0.4);
+    }
+
+    .error-container {
+        flex: 1;
+        display: flex;
+        align-items: center;
+    }
+
+    .error-message {
+        color: #e53e3e;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+    }
+
+
+    /* Form buttons */
+
+    .form-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1.5rem;
+    }
+
+    .form-button {
+        padding: 0.75rem 1.5rem;
+        font-size: 1rem;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        font-family: 'Helvetica Neue', sans-serif;
+    }
+
+    .form-button-primary {
+        background-color: #48bb78;
+        color: #fff;
+    }
+
+    .form-button-secondary {
+        background-color: #718096;
+        color: #fff;
+    }
+
+    .form-button-primary:hover,
+    .form-button-secondary:hover {
+        background-color: #38a169;
+    }
+</style>
+<div class="form-container">
+    <h1 class="form-heading">New Tour</h1>
+    <p class="step-description">Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+    <form action="" method="post">
+        {% csrf_token %}
+        {%if form.errors%}
+        <div class="alert alert-warning" role="alert">
+            Dữ liệu gửi lên không đúng, xin vui lòng kiểm tra lại!
+          </div>
+        {%endif%}
+        {{ form.as_p }}
+        {{ wizard.management_form }}
+        <table class="mt-4 w-full">
+            {% if wizard.form.forms %}
+                {{ wizard.form.management_form }}
+                {% for form in wizard.form.forms %}
+                    {% for field in form %}
+                    <div class="form-field">
+                        <div class="form-input-row">
+                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+                            {{ field }}
+                        </div>
+                        <div class="error-message" style="color: red;">
+                            {{ field.errors }}
+                        </div>
+                    </div>
+                    {% endfor %}
+            
+                {% endfor %}
+            {% endif %}
+        </table>
+        <div class="form-buttons">
+            {% if wizard.steps.prev %}
+            {% if wizard.steps.last %}
+                <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="form-button form-button-secondary">
+                    {% trans "Previous" %}
+                </button>
+                <button type="submit" class="form-button form-button-primary" value="submit">
+                    {% trans "Submit" %}
+                </button>
+            {% else %}
+                <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="form-button form-button-secondary">
+                    {% trans "Previous" %}
+                </button>
+                <button type="submit" class="form-button form-button-primary" value="{{ wizard.steps.current }}">
+                    {% trans "Next" %}
+                </button>
+            {% endif %}
+        {% else %}
+            <button type="submit" class="form-button form-button-primary" value="{{ wizard.steps.current }}">
+                {% trans "Next" %}
+            </button>
+        {% endif %}
+        
         </div>
-    </div>
+        
+        
+    </form>
 </div>
-<!-- /.MultiStep Form -->
 {% endblock %}

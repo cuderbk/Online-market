@@ -4,6 +4,10 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+
+from django.core.exceptions import ValidationError
+
 from core.models import NhanVien
 
 # Signal to generate ma_tour before saving the Tour object
@@ -190,7 +194,9 @@ class NgaykhoihanhTourdai(models.Model):
         db_table = 'ngaykhoihanh_tourdai'
         unique_together = (('ma_tour', 'ngay'),)
 
-
+    # def clean(self):
+    #     if self.ngay <1 or self.ngay > 31:
+    #         raise ValidationError({'ngay':_('Ngày không hợp lệ')})
 
 
 
