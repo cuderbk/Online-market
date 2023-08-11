@@ -96,7 +96,7 @@ class NewTourView(SessionWizardView):
             lichtrinhtour_instance.save()
             
             lichtrinhchuyen_instance = form_list[3].save(commit=False)
-            lichtrinhchuyen_instance.ma_tour = chuyendi_instance.ma_tour
+            lichtrinhchuyen_instance.ma_tour = TourInstance.ma_tour
             lichtrinhchuyen_instance.ngay_khoihanh = chuyendi_instance.ngay_khoihanh
             lichtrinhchuyen_instance.save()
             lichtrinhchuyen_instance.id = chuyendi_instance

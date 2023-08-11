@@ -5,7 +5,7 @@ from tour.models import Category, Tour
 from .forms import SignupForm
 
 def index(request):
-    tours = Tour.objects.all()[0:6]
+    tours = Tour.objects.all()[0:3]
 
     return render(request, 'core/index.html', {
         'tours': tours,

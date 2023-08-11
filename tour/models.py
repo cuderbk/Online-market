@@ -4,7 +4,11 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.text import slugify
+from collections import OrderedDict
+from django.db.models.deletion import CASCADE, DO_NOTHING
+from compositefk.fields import CompositeForeignKey, _
 from django.utils.translation import gettext_lazy as _
+
 
 from django.core.exceptions import ValidationError
 
@@ -166,12 +170,16 @@ class HdvChuyendi(models.Model):
 
 
 class LichtrinhChuyen(models.Model):
+    id = CompositeKey(['ma_tour', 'ngay_khoihanh', 'stt_ngay'])
     
-    id = CompositeKey(columns=['ma_tour', 'ngay_khoihanh'])
-    ma_tour = models.ForeignKey(Chuyendi, models.DO_NOTHING, db_column='ma_tour')
-    ngay_khoihanh = models.ForeignKey(Chuyendi, models.DO_NOTHING, db_column='ngay_khoihanh', related_name='lichtrinhchuyen_ngay_khoihanh')
-    stt_ngay = models.IntegerField()
 
+    ma_tour = models.CharField(db_column='ma_tour', max_length=12)
+    ngay_khoihanh = models.DateField(db_column='ngay_khoihanh')
+    stt_ngay = models.IntegerField()
+    chuyendi =  CompositeForeignKey(Chuyendi, on_delete=CASCADE, related_name='chuyendi', to_fields=OrderedDict([
+        ("ma_tour", "ma_tour"),
+        ("ngay_khoihanh", "ngay_khoihanh"),
+    ]))
     class Meta:
         managed = False
         db_table = 'lichtrinh_chuyen'
@@ -191,17 +199,21 @@ class Lichtrinhtour(models.Model):
 
 
 class NgaykhoihanhTourdai(models.Model):
+    id = CompositeKey(columns=['ma_tour', 'ngay'])
     ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
     ngay = models.IntegerField()
 
     class Meta:
         managed = False
         db_table = 'ngaykhoihanh_tourdai'
-        unique_together = (('ma_tour', 'ngay'),)
+        # unique_together = (('ma_tour', 'ngay'),)
 
-    # def clean(self):
-    #     if self.ngay <1 or self.ngay > 31:
-    #         raise ValidationError({'ngay':_('Ngày không hợp lệ')})
+    def __str__(self):
+        return self.ma_tour + str(self.ngay)
+    
+    def clean(self):
+        if self.ngay <1 or self.ngay > 31:
+            raise ValidationError({'ngay':_('Ngày không hợp lệ')})
 
 
 
