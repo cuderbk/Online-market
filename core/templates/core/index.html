@@ -9,10 +9,14 @@
         <div class="grid grid-cols-3 gap-3">
             {% for tour in tours %}
                 <div>
-                    <a href="{% url 'tour:detail' tour.matour %}">
-                        <div>
-                            <img src="{{ tour.info.image.url }}" class="rounded-t-xl">
-                        </div>
+                    <a href="{% url 'tour:detail' tour.ma_tour %}">
+                        <p>
+                            An image as a link: 
+                            <a href={{tour.anh}}>
+                                <img border="0" alt="W3Schools" src="logo_w3s.gif" width="100" height="100">
+                            </a>
+                        </p>
+                        
 
                         <div class="p-6 bg-white rounded-b-xl">
                             <h2 class="text-2xl">{{ tour.tentour }}</h2>

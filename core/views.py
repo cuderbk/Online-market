@@ -6,10 +6,8 @@ from .forms import SignupForm
 
 def index(request):
     tours = Tour.objects.all()[0:6]
-    categories = Category.objects.all()
 
     return render(request, 'core/index.html', {
-        'categories': categories,
         'tours': tours,
     })
 

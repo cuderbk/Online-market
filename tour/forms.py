@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh
+from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
@@ -48,15 +48,87 @@ class NewTourForm(forms.ModelForm):
 
 
 class NgayKhoiHanhTourForm(forms.ModelForm):
-    ngay = forms.MultipleChoiceField(
-        choices=[(str(i), i) for i in range(1, 32)],
-        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-checkbox'}),
-    )
     
     class Meta:
         model = NgaykhoihanhTourdai
-        fields = ('ngay',)
+        fields =('ngay', )
+        labels = {
+            'ngay': 'Ngay',
+        }
+        widgets = {
+            'ngay': forms.NumberInput(attrs={'class': 'form-input'}),
+        }
+class HanhdongLichtrinhtourForm(forms.ModelForm):
+    class Meta:
+        model = HanhdongLichtrinhtour
+        fields = ('loai_hanhdong', 'thoigian_batdau', 'thoigian_ketthuc', 'mo_ta')
+        labels = {
+            'loai_hanhdong': 'Loại hành động',
+            'thoigian_batdau': 'Thời gian bắt đầu',
+            'thoigian_ketthuc': 'Thời gian kết thúc',
+            'mo_ta': 'Mô tả',
+        }
+        widgets = {
+            'thoigian_batdau': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'thoigian_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'mo_ta': forms.Textarea(attrs={'class': 'form-input'}),
+        }
 
+class HdvChuyendiForm(forms.ModelForm):
+    class Meta:
+        model = HdvChuyendi
+        fields = ('ma_hdv',)
+        labels = {
+            'ma_hdv': 'Hướng dẫn viên',
+        }
+
+class LichtrinhChuyenForm(forms.ModelForm):
+    class Meta:
+        model = LichtrinhChuyen
+        fields = ('stt_ngay',)
+        labels = {
+            'stt_ngay': 'STT Ngay',
+        }
+        widgets = {
+            'stt_ngay': forms.NumberInput(attrs={'class': 'form-input'}),
+        }
+
+class LichtrinhtourForm(forms.ModelForm):
+    class Meta:
+        model = Lichtrinhtour
+        fields = ('stt_ngay',)
+        labels = {
+            'stt_ngay': 'STT Ngay',
+        }
+        widgets = {
+            'stt_ngay': forms.NumberInput(attrs={'class': 'form-input'}),
+        }
+class DiadiemThamquanForm(forms.ModelForm):
+    class Meta:
+        model = DiadiemThamquan
+        fields = ('ma_diem', 'thoigian_batdau', 'thoigian_ketthuc', 'mo_ta')
+        labels = {
+            'ma_diem': 'Địa điểm',
+            'thoigian_batdau': 'Thời gian bắt đầu',
+            'thoigian_ketthuc': 'Thời gian kết thúc',
+            'mo_ta': 'Mô tả',
+        }
+        widgets = {
+            'thoigian_batdau': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'thoigian_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'mo_ta': forms.Textarea(attrs={'class': 'form-input'}),
+        }
+class ChuyenDiForm(forms.ModelForm):
+    
+    class Meta:
+        model = Chuyendi
+        fields= ('ngay_khoihanh', 'ngay_ketthuc','tonggia', )
+        
+        widgets = {
+            'ngay_khoihanh': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'ngay_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'tonggia': forms.NumberInput(attrs={'class': 'form-input'}),
+        }
 class NewTourInfoForm(forms.ModelForm):
     class Meta:
         model= Info

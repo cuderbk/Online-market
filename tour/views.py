@@ -3,8 +3,8 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Tour, Info, NgaykhoihanhTourdai
-from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm
+from .models import Category, Tour, Info, NgaykhoihanhTourdai, DiadiemThamquan
+from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
@@ -19,7 +19,7 @@ def tours(request):
     query = request.GET.get('query', '')
     # category_id = request.GET.get('category')
 
-    tours = Info.objects.all()
+    tours = Tour.objects.all()
 
     if query:
         tours = tours.filter(tour__tentour__icontains=query)
@@ -61,7 +61,7 @@ def detail(request, pk):
 
 # TEMPLATES = {
 #     "tour": "'tour/form.html'",
-#     "ngaykhoihanh": "your_app/ngaykhoihanh_form.html",
+#     "ngaykhoihanh": "your_app/ngaykhoihanh_form.html", ,DiadiemThamquanForm, NgayKhoiHanhTourForm,LichtrinhtourForm
 # }
 def get_generated_ma_tour():
     latest_tour = Tour.objects.order_by('ma_tour').last()
@@ -69,32 +69,79 @@ def get_generated_ma_tour():
         return latest_tour.ma_tour
     return None
 class NewTourView(SessionWizardView):
-    # ... (other code remains the same)
-    form_list = [NewTourForm, NgayKhoiHanhTourForm]
+    form_list = [NewTourForm,ChuyenDiForm ,LichtrinhtourForm, LichtrinhChuyenForm]
     template_name = 'tour/form.html'
+    
     def done(self, form_list, **kwargs):
         form_data = self.get_all_cleaned_data()
 
         with transaction.atomic():
             tour_instance = form_list[0].save()  # Save the Tour instance
+            chuyendi_instance = form_list[1].save(commit=False)
             
-            ngaykhoihanh_tourdai_data_list = []
+            # ngaykhoihanh_tourdai_data_list = []
             
-            selected_dates = form_data['ngay']
-            for ngay in int(selected_dates):
+            # selected_dates = form_list[1].cleaned_data['selected_dates']
+            TourInstance=Tour.objects.annotate(
+                    sort_order=Case(
+                        When(ma_cn=form_data['ma_cn'], then=1), default=0, output_field=IntegerField()
+                    )                
+                ).order_by('ma_tour').last()
+            
+            chuyendi_instance.ma_tour = TourInstance
+            chuyendi_instance.save()
+            
+            lichtrinhtour_instance = form_list[2].save(commit=False)
+            lichtrinhtour_instance.ma_tour = TourInstance
+            lichtrinhtour_instance.save()
+            
+            lichtrinhchuyen_instance = form_list[3].save(commit=False)
+            lichtrinhchuyen_instance.ma_tour = chuyendi_instance.ma_tour
+            lichtrinhchuyen_instance.ngay_khoihanh = chuyendi_instance.ngay_khoihanh
+            lichtrinhchuyen_instance.save()
+            lichtrinhchuyen_instance.id = chuyendi_instance
 
-                ngaykhoihanh_tourdai_data = {
-                    'ma_tour': tour_instance,
-                    'ngay': int(ngay),
-                    # ... populate other fields for NgayKhoiHanhTourdai model
-                }
-                ngaykhoihanh_tourdai_data_list.append(ngaykhoihanh_tourdai_data)
+            # diadiem_thamquan_instance = form_list[2].save(commit=False)
+            # diadiem_thamquan_instance.ma_tour = lichtrinhtour_instance.ma_tour
+            # diadiem_thamquan_instance.stt_ngay = lichtrinhtour_instance.stt_ngay
+            # diadiem_thamquan_instance.save()
+
+            # diadiemthamquan_data = {
+            #     'ma_tour': lichtrinhtour_instance.ma_tour,
+            #     'stt_ngay':lichtrinhtour_instance.stt_ngay,
+            #     'ma_diem': form_data['ma_diem'],
+            #     'thoigian_batdau': form_data['thoigian_batdau'],
+            #     'thoigian_ketthuc': form_data['thoigian_ketthuc'],
+            #     'mo_ta': form_data['mo_ta']
+            #     # ... populate other fields for NgayKhoiHanhTourdai model
+            # }
+            # diadiemthamquan_instance = DiadiemThamquan(**diadiemthamquan_data)
+            # diadiemthamquan_instance.save()
+            # diadiem_thamquan_data ={
+            #     'ma_tour': TourInstance,
+            #     'ma_diem': form_data['ma_diem'],
+            #     'thoigian_batdau': form_data['thoigian_ketthuc'],
+            #     'mo_ta': form_data['mo_ta']
+            # }
+            # ngaykhoihanh_tourdai_data = {
+            #     'ma_tour': TourInstance,
+            #     'ngay': form_data['ngay'],
+            #     # ... populate other fields for NgayKhoiHanhTourdai model
+            # }
+            # ngaykhoihanh_tourdai_data_list.append(ngaykhoihanh_tourdai_data)
+            # NgaykhoihanhTourdai.objects.bulk_create([
+            #     NgaykhoihanhTourdai(**data) for data in ngaykhoihanh_tourdai_data_list
+            # ])
+            # diadiemthamquan_data = form_list[1].cleaned_data
+            # ngaykhoihanh_tourdai_data = form_list[2].cleaned_data
             
-            NgaykhoihanhTourdai.objects.bulk_create([
-                NgaykhoihanhTourdai(**data) for data in ngaykhoihanh_tourdai_data_list
-            ])
+            # for form in form_list[2:]:
+            #     instance = form.save(commit=False)
+            #     instance.ma_tour= TourInstance
+            #     instance.save()
         
-        return HttpResponse('Form submitted')
+        # Redirect to a success page or tour detail page
+        return HttpResponse('Success')
 
 
 
