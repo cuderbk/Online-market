@@ -4,6 +4,11 @@ from django.contrib.auth.models import User
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.utils.text import slugify
+from django.utils.translation import gettext_lazy as _
+
+from django.core.exceptions import ValidationError
+
+from viewflow.fields import CompositeKey
 from core.models import NhanVien
 
 # Signal to generate ma_tour before saving the Tour object
@@ -44,7 +49,8 @@ class ChiNhanh(models.Model):
 
 
 class Chuyendi(models.Model):
-    ma_tour = models.OneToOneField('Tour', models.DO_NOTHING, db_column='ma_tour', primary_key=True)
+    id = CompositeKey(columns= ['ma_tour', 'ngay_khoihanh'])
+    ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
     ngay_khoihanh = models.DateField()
     ngay_ketthuc = models.DateField(blank=True, null=True)
     tonggia = models.IntegerField(blank=True, null=True)
@@ -52,11 +58,12 @@ class Chuyendi(models.Model):
     class Meta:
         managed = False
         db_table = 'chuyendi'
-        unique_together = (('ma_tour', 'ngay_khoihanh'),)
+        # unique_together = (('ma_tour', 'ngay_khoihanh'),)
 
 
 class DiadiemThamquan(models.Model):
-    ma_tour = models.OneToOneField('Lichtrinhtour', models.DO_NOTHING, db_column='ma_tour', primary_key=True, related_name='diadiem_thamquan_ma_tour')
+    id = CompositeKey(columns=['ma_tour','stt_ngay','ma_diem'])
+    ma_tour = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='ma_tour', related_name='diadiem')
     stt_ngay = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='stt_ngay', related_name='diadiem_thamquan_stt_ngay')
     ma_diem = models.ForeignKey('DiemDulich', models.DO_NOTHING, db_column='ma_diem')
     thoigian_batdau = models.DateField(blank=True, null=True)
@@ -66,7 +73,7 @@ class DiadiemThamquan(models.Model):
     class Meta:
         managed = False
         db_table = 'diadiem_thamquan'
-        unique_together = (('ma_tour', 'stt_ngay', 'ma_diem'),)
+        # unique_together = (('ma_tour', 'stt_ngay', 'ma_diem'),)
 
 class DiemDulich(models.Model):
     ma_diem = models.AutoField(primary_key=True)
@@ -109,9 +116,8 @@ class DonviCungcap(models.Model):
         db_table = 'donvi_cungcap'
 
 
-
 class DvccDvchuyendi(models.Model):
-    ma_tour = models.OneToOneField('LichtrinhChuyen', models.DO_NOTHING, db_column='ma_tour', primary_key=True)
+    ma_tour = models.ForeignKey('LichtrinhChuyen', models.DO_NOTHING, db_column='ma_tour')
     ngay_khoihanh = models.ForeignKey('LichtrinhChuyen', models.DO_NOTHING, db_column='ngay_khoihanh', related_name='dvcc_dvchuyendi_ngay_khoihanh')
     stt_ngay = models.ForeignKey('LichtrinhChuyen', models.DO_NOTHING, db_column='stt_ngay', related_name='dvcc_dvchuyendi_stt_ngay')
     loai = models.IntegerField()
@@ -124,7 +130,7 @@ class DvccDvchuyendi(models.Model):
 
 
 class DvccDvlq(models.Model):
-    ma_tour = models.OneToOneField('Tour', models.DO_NOTHING, db_column='ma_tour', primary_key=True)
+    ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
     ma_diem = models.ForeignKey(DiemDulich, models.DO_NOTHING, db_column='ma_diem')
     ma_donvi = models.ForeignKey(DonviCungcap, models.DO_NOTHING, db_column='ma_donvi')
 
@@ -135,7 +141,7 @@ class DvccDvlq(models.Model):
 
 
 class HanhdongLichtrinhtour(models.Model):
-    ma_tour = models.OneToOneField('Lichtrinhtour', models.DO_NOTHING, db_column='ma_tour', primary_key=True, related_name='hanhdong_lichtrinhtour_ma_tour')
+    ma_tour = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='ma_tour', related_name='hanhdong_lich')
     stt_ngay = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='stt_ngay', related_name='hanhdong_lichtrinhtour_stt_ngay')
     loai_hanhdong = models.IntegerField()
     thoigian_batdau = models.DateField(blank=True, null=True)
@@ -149,7 +155,7 @@ class HanhdongLichtrinhtour(models.Model):
 
 
 class HdvChuyendi(models.Model):
-    ma_tour = models.OneToOneField(Chuyendi, models.DO_NOTHING, db_column='ma_tour', primary_key=True, related_name='hdvchuyendi_ma_tour')
+    ma_tour = models.ForeignKey(Chuyendi, models.DO_NOTHING, db_column='ma_tour', related_name='hd')
     ngay_khoihanh = models.ForeignKey(Chuyendi, models.DO_NOTHING, db_column='ngay_khoihanh', related_name='hdvchuyendi_ngay_khoihanh')
     ma_hdv = models.ForeignKey('core.Nhanvien', models.DO_NOTHING, db_column='ma_hdv')
 
@@ -160,25 +166,28 @@ class HdvChuyendi(models.Model):
 
 
 class LichtrinhChuyen(models.Model):
-    ma_tour = models.OneToOneField(Chuyendi, models.DO_NOTHING, db_column='ma_tour', primary_key=True)
+    
+    id = CompositeKey(columns=['ma_tour', 'ngay_khoihanh'])
+    ma_tour = models.ForeignKey(Chuyendi, models.DO_NOTHING, db_column='ma_tour')
     ngay_khoihanh = models.ForeignKey(Chuyendi, models.DO_NOTHING, db_column='ngay_khoihanh', related_name='lichtrinhchuyen_ngay_khoihanh')
     stt_ngay = models.IntegerField()
 
     class Meta:
         managed = False
         db_table = 'lichtrinh_chuyen'
-        unique_together = (('ma_tour', 'ngay_khoihanh', 'stt_ngay'),)
+        # unique_together = (('ma_tour', 'ngay_khoihanh', 'stt_ngay'),)
 
 
 
 class Lichtrinhtour(models.Model):
-    ma_tour = models.OneToOneField('Tour', models.DO_NOTHING, db_column='ma_tour', primary_key=True)
+    id = CompositeKey(columns=['ma_tour','stt_ngay'])
+    ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
     stt_ngay = models.IntegerField()
 
     class Meta:
         managed = False
         db_table = 'lichtrinhtour'
-        unique_together = (('ma_tour', 'stt_ngay'),)
+        # unique_together = (('ma_tour', 'stt_ngay'),)
 
 
 class NgaykhoihanhTourdai(models.Model):
@@ -190,12 +199,14 @@ class NgaykhoihanhTourdai(models.Model):
         db_table = 'ngaykhoihanh_tourdai'
         unique_together = (('ma_tour', 'ngay'),)
 
-
+    # def clean(self):
+    #     if self.ngay <1 or self.ngay > 31:
+    #         raise ValidationError({'ngay':_('Ngày không hợp lệ')})
 
 
 
 class SoDienThoaiChiNhanh(models.Model):
-    ma_cn = models.OneToOneField(ChiNhanh, models.DO_NOTHING, db_column='ma_cn', primary_key=True)
+    ma_cn = models.ForeignKey(ChiNhanh, models.DO_NOTHING, db_column='ma_cn')
     sdt_cn = models.CharField(max_length=10)
 
     class Meta:
@@ -290,7 +301,7 @@ class City(models.TextChoices):
     THUA_THIEN_HUE  ="TTH" , 	"Thua Thien Hue" 
 
 class Info(models.Model):
-    tour= models.OneToOneField( Tour, related_name='tours', on_delete=models.CASCADE, null=True)
+    tour= models.OneToOneField( Tour, related_name='tours', on_delete=models.CASCADE)
     description = models.TextField(blank=True, null=True)
     created_by = models.ForeignKey(User,  on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
