@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Tour, Info, NgaykhoihanhTourdai, DiadiemThamquan
+from .models import Category, Tour, Info, NgaykhoihanhTourdai, DiadiemThamquan, Lichtrinhtour, DiemDulich
 from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -22,7 +22,7 @@ def tours(request):
     tours = Tour.objects.all()
 
     if query:
-        tours = tours.filter(tour__tentour__icontains=query)
+        tours = tours.filter(ten_tour__icontains=query)
 
     # if category_id:
     #     tours = tours.filter(category_id=category_id)
@@ -41,11 +41,16 @@ def tours(request):
 def detail(request, pk):
     
     tour = get_object_or_404(Tour, pk=pk)
-    tour_detail =get_object_or_404(Info, tour=tour)
+    diadiem_thamquan = Lichtrinhtour.objects.filter(ma_tour=pk)
+    # diem_dulich = DiemDulich.objects.filter(diadiemthamquan__ma_tour=pk)
+    diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
+    # tour_detail =get_object_or_404(Tour, ma_tour=tour)
     # related_items = Info.objects.filter(category=tour_detail.category).exclude(pk=pk)[0:3]
 
     return render(request, 'tour/detail.html', {
         'tour': tour,
+        'diadiem_thamquan': diadiem_thamquan,
+        # 'diem_dulich': diem_dulich,
         # 'related_items': related_items
     })
 

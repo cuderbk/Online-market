@@ -4,6 +4,65 @@
 
 {% block title %}{{ tour.ten_tour }}{% endblock %}
 
+{% block styles %}
+<style>
+    /* Custom styles for the tour detail page */
+    .tour-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin: 2rem 0;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    }
+   .tour-image {
+        flex: 0 0 40%;
+        margin-right: 2rem;
+    }
+
+    .tour-image img {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .tour-content {
+        flex: 1;
+    }
+
+    .tour-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .tour-price {
+        font-size: 1.2rem;
+        color: #e74c3c;
+        margin-bottom: 0.5rem;
+    }
+    .buy-button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 1.25rem;
+        background-color: #008080;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+
+    .buy-button:hover {
+        background-color: #006666;
+    }
+
+    /* Add more custom styles for other fields */
+</style>
+{% endblock %}
+
 {% block content %}
     <div class="py-6 px-4">
         <div class="grid grid-cols-3 gap-4">
@@ -17,6 +76,25 @@
             <div class="col-span-1">
                 <!-- Display related items -->
                 <h2 class="text-xl font-semibold">Related Items</h2>
+                <p>Time: {{ tour.so_ngay }} {% if tour.so_ngay == 1 %}day{% else %}days{% endif %}{% if tour.so_dem > 0 %} {{ tour.so_dem }} {% endif %}{% if tour.so_dem == 1 %}night{%endif%}{% if tour.so_dem > 1 %}nights{%endif%}</p>
+                <p>Start: {{ tour.ngay_batdau }}</p>
+                <p>Tour code: {{ tour.ma_tour }}</p>
+                <p>Adult Price: {{ tour.giave_kl_nguoilon }} vnd</p>
+                <p>Child price: {{ tour.giave_kl_treem }} vnd</p>
+                <p>Adult Group Price: {{ tour.giave_kd_nguoilon }} vnd</p>
+                <p>Child Group price: {{ tour.giave_kd_treem }} vnd</p>
+                <p>Minimum number of guests: {{ tour.sokhachdoan_toithieu }}</p>
+                <p>Branch: {{ tour.ma_cn }}</p>
+                <h2 class="text-xl font-semibold">Lịch trình tour</h2>
+                <ul>
+                    {% for item in diadiem_thamquan %}
+                        <li>
+                            Ngày {{ item.stt_ngay }} - Địa điểm: {{ item.ma_diem }} - Thời gian bắt đầu: {{ item.thoigian_batdau }} - Thời gian kết thúc: {{ item.thoigian_ketthuc }} - Mô tả: {{ item.mo_ta }}
+                        </li>
+                        <!-- You can further include sub-details if needed -->
+                    {% endfor %}
+                </ul>
+                <a class="buy-button">Buy</a>
                 <ul>
                     {% for tour in related_tours %}
                         <li>
