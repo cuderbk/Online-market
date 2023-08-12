@@ -8,5 +8,5 @@ def index(request):
     tours = Tour.objects.all() #use filter alreaddy
 
     return render(request, 'dashboard/index.html', {
-        'tours': Tour,
+        'tours': tours,
     })

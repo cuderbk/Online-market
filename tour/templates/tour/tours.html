@@ -38,12 +38,9 @@
                         {% if tour.ma_tour %}
                         <a href="{% url 'tour:detail' tour.ma_tour %}">
                             <div>
-                                {% if tour.info.image %}
-                                    <img src="{{ tour.info.image.url }}" class="rounded-t-xl">
-                                {% else %}
-                                    <!-- If there is no image, display a placeholder image or any other content -->
-                                    <img src="tour_images/colosseum.jpg" class="rounded-t-xl">
-                                {% endif %}
+                                <div>
+                                    <img src="{{ tour.anh }}" class="rounded-t-xl">
+                                </div>
                             </div>
         
                             <div class="p-6 bg-white rounded-b-xl">

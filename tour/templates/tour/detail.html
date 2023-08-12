@@ -10,12 +10,9 @@
             <div class="col-span-2">
                 <h1 class="text-3xl font-semibold">{{ tour.ten_tour }}</h1>
                 <p class="text-gray-500">Price: {{ tour.giave_kl_nguoilon }}</p>
-                <!-- Other tour details you may want to display -->
-
-                <!-- Display the tour image if available -->
-                {% comment %} {% if tour_info.image %}
-                    <img src="{{ tour_info.image.url }}" class="mt-4 rounded-xl">
-                {% endif %} {% endcomment %}
+                <div>
+                    <img src="{{ tour.anh }}" class="rounded-t-xl">
+                </div>
             </div>
             <div class="col-span-1">
                 <!-- Display related items -->
