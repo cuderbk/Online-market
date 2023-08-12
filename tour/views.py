@@ -41,7 +41,7 @@ def tours(request):
 def detail(request, pk):
     
     tour = get_object_or_404(Tour, pk=pk)
-    tour_detail =get_object_or_404(Info, tour=tour)
+    # tour_detail =get_object_or_404(Tour, ma_tour=tour)
     # related_items = Info.objects.filter(category=tour_detail.category).exclude(pk=pk)[0:3]
 
     return render(request, 'tour/detail.html', {

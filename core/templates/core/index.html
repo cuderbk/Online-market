@@ -11,7 +11,7 @@
                 {% for tour in tours %}
                     <div>
                         {% if tour.ma_tour %}
-                        <a href="{% url 'tour:detail' tour.ma_tour %}">
+                        <a href="{% url 'tour:detail' tour.pk %}">
                             <div>
                                 <div>
                                     <img src="{{ tour.anh }}" class="rounded-t-xl">
