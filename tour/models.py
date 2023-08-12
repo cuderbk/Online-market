@@ -64,12 +64,19 @@ class Chuyendi(models.Model):
         db_table = 'chuyendi'
         # unique_together = (('ma_tour', 'ngay_khoihanh'),)
 
-
+ 
 class DiadiemThamquan(models.Model):
     id = CompositeKey(columns=['ma_tour','stt_ngay','ma_diem'])
-    ma_tour = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='ma_tour', related_name='diadiem')
-    stt_ngay = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='stt_ngay', related_name='diadiem_thamquan_stt_ngay')
+    
+    ma_tour = models.CharField( db_column='ma_tour', max_length=12)
+    stt_ngay = models.IntegerField(db_column='stt_ngay')
     ma_diem = models.ForeignKey('DiemDulich', models.DO_NOTHING, db_column='ma_diem')
+    
+    lichtrinhtour =  CompositeForeignKey('Lichtrinhtour', on_delete=CASCADE, related_name='lichtrinhtour', to_fields=OrderedDict([
+        ("ma_tour", "ma_tour"),
+        ("stt_ngay", "stt_ngay"),
+    ]))
+    
     thoigian_batdau = models.DateField(blank=True, null=True)
     thoigian_ketthuc = models.DateField(blank=True, null=True)
     mo_ta = models.TextField(blank=True, null=True)
@@ -121,16 +128,21 @@ class DonviCungcap(models.Model):
 
 
 class DvccDvchuyendi(models.Model):
-    ma_tour = models.ForeignKey('LichtrinhChuyen', models.DO_NOTHING, db_column='ma_tour')
-    ngay_khoihanh = models.ForeignKey('LichtrinhChuyen', models.DO_NOTHING, db_column='ngay_khoihanh', related_name='dvcc_dvchuyendi_ngay_khoihanh')
-    stt_ngay = models.ForeignKey('LichtrinhChuyen', models.DO_NOTHING, db_column='stt_ngay', related_name='dvcc_dvchuyendi_stt_ngay')
+    id = CompositeKey(columns=['ma_tour', 'ngay_khoihanh', 'stt_ngay', 'loai', 'ma_donvi'])
+    ma_tour = models.CharField(db_column='ma_tour', max_length=12)
+    ngay_khoihanh = models.DateField(db_column='ngay_khoihanh')
+    stt_ngay = models.IntegerField()
     loai = models.IntegerField()
     ma_donvi = models.ForeignKey(DonviCungcap, models.DO_NOTHING, db_column='ma_donvi')
-
+    lichtrinhchuyen  = CompositeForeignKey( 'LichtrinhChuyen', on_delete=CASCADE, related_name='lichtrinhchuyen', to_fields=OrderedDict([
+        ("ma_tour", "ma_tour"),
+        ("ngay_khoihanh", "ngay_khoihanh"),
+        ('stt_ngay', 'stt_ngay'),
+    ]))
     class Meta:
         managed = False
         db_table = 'dvcc_dvchuyendi'
-        unique_together = (('ma_tour', 'ngay_khoihanh', 'stt_ngay', 'loai', 'ma_donvi'),)
+        # unique_together = (('ma_tour', 'ngay_khoihanh', 'stt_ngay', 'loai', 'ma_donvi'),)
 
 
 class DvccDvlq(models.Model):
@@ -170,7 +182,7 @@ class HdvChuyendi(models.Model):
 
 
 class LichtrinhChuyen(models.Model):
-    id = CompositeKey(['ma_tour', 'ngay_khoihanh', 'stt_ngay'])
+    # id = CompositeKey(['ma_tour', 'ngay_khoihanh', 'stt_ngay'])
     
 
     ma_tour = models.CharField(db_column='ma_tour', max_length=12)
@@ -183,7 +195,7 @@ class LichtrinhChuyen(models.Model):
     class Meta:
         managed = False
         db_table = 'lichtrinh_chuyen'
-        # unique_together = (('ma_tour', 'ngay_khoihanh', 'stt_ngay'),)
+        unique_together = (('ma_tour', 'ngay_khoihanh', 'stt_ngay'),)
 
 
 

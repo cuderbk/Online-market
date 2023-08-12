@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi
+from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi,DvccDvchuyendi, DvccDvlq
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
@@ -129,11 +129,26 @@ class ChuyenDiForm(forms.ModelForm):
             'ngay_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
             'tonggia': forms.NumberInput(attrs={'class': 'form-input'}),
         }
+class DonviccdvChuyenForm(forms.ModelForm):
+    class Meta:
+        model = DvccDvchuyendi
+        fields = ('loai', 'ma_donvi',)
+        widgets = {
+            'loai':forms.NumberInput(attrs={'class': 'form-input'}),
+            'ma_donvi':forms.Select(attrs={'class': 'form-input'}),
+        }
+class DonviccdvLienquan(forms.ModelForm):
+    class Meta:
+        model = DvccDvlq
+        fields = ('ma_diem', 'ma_donvi',)
+        widgets = {
+            'ma_diem':forms.NumberInput(attrs={'class': 'form-input'}),
+            'ma_donvi':forms.Select(attrs={'class': 'form-input'}),
+        }
 class NewTourInfoForm(forms.ModelForm):
     class Meta:
         model= Info
         fields =('category','diemxp','diemden','description','status')
-
 
 class EditTourForm(forms.ModelForm):
 

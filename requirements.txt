@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 aiohttp==3.8.1
 aiosignal==1.2.0
 animation==0.0.7
@@ -43,6 +44,9 @@ dill==0.3.6
 distlib==0.3.6
 distro==1.8.0
 Django==4.0.10
+=======
+django-composite-foreignkey==1.1.0
+>>>>>>> 5b2c2abf2a0d90a8ce6323eef97ab2601571a0a7
 django-bootstrap-v5==1.0.11
 django-bootstrap4==23.2
 django-composite-foreignkey==1.1.0
@@ -53,6 +57,7 @@ django-formtools==2.4.1
 django-viewflow==2.0.0b6
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
+<<<<<<< HEAD
 entrypoints==0.4
 executing==0.8.3
 fake-useragent==0.1.11
@@ -290,3 +295,5 @@ wsproto==1.1.0
 yarl==1.8.1
 zipp==3.8.1
 zope.interface==6.0
+=======
+>>>>>>> 5b2c2abf2a0d90a8ce6323eef97ab2601571a0a7
