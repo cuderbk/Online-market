@@ -43,7 +43,7 @@ def detail(request, pk):
     tour = get_object_or_404(Tour, pk=pk)
     diadiem_thamquan = Lichtrinhtour.objects.filter(ma_tour=pk)
     # diem_dulich = DiemDulich.objects.filter(diadiemthamquan__ma_tour=pk)
-    diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
+    # diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
     # tour_detail =get_object_or_404(Tour, ma_tour=tour)
     # related_items = Info.objects.filter(category=tour_detail.category).exclude(pk=pk)[0:3]
 
