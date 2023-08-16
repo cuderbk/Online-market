@@ -41,17 +41,22 @@ def tours(request):
 def detail(request, pk):
     
     tour = get_object_or_404(Tour, pk=pk)
-    diadiem_thamquan = Lichtrinhtour.objects.filter(ma_tour=pk)
-    # diem_dulich = DiemDulich.objects.filter(diadiemthamquan__ma_tour=pk)
-    # diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
+    lichtrinh_tour = Lichtrinhtour.objects.filter(ma_tour=pk)
+    diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour__ma_tour=pk)
     # tour_detail =get_object_or_404(Tour, ma_tour=tour)
     # related_items = Info.objects.filter(category=tour_detail.category).exclude(pk=pk)[0:3]
 
     return render(request, 'tour/detail.html', {
         'tour': tour,
+        'lichtrinh_tour': lichtrinh_tour,
         'diadiem_thamquan': diadiem_thamquan,
-        # 'diem_dulich': diem_dulich,
         # 'related_items': related_items
+    })
+
+def buy(request, pk):
+    tour = get_object_or_404(Tour, pk=pk)
+    return render(request, 'tour/buy.html',{
+        'tour':tour,
     })
 
 # @login_required
