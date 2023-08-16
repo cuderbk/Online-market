@@ -1,0 +1,28 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+  <h2>Create Tour</h2>
+  <form  method="post">
+    {% csrf_token %}
+    {{ tour_form.as_p }}
+    <button type="submit">Next</button>
+  </form>
+
+  {% comment %} <hr>
+
+  <h2>Add NgayKhoiHanhTourdai</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ ngay_khoi_hanh_form.as_p }}
+    <button type="submit">Next</button>
+  </form>
+
+  <hr>
+
+  <h2>Add Lichtrinhtour</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ lichtrinhtour_form.as_p }}
+    <button type="submit">Submit</button>
+  </form> {% endcomment %}
+{% endblock %}

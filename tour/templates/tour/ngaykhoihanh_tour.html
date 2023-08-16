@@ -1,0 +1,14 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+  <h2>Add NgayKhoiHanhTourdai</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+      {{ form.as_p }}
+    {% endfor %}
+    <button type="submit" name="save_and_add_another">Save and Add Another</button>
+    <button type="submit" name ="next">Next</button>
+  </form>
+{% endblock %}

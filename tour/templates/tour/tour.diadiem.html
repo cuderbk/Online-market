@@ -134,34 +134,28 @@
           </div>
         {%endif%}
         {{ form.as_p }}
-        {{ wizard.management_form }}
-        <table class="mt-4 w-full">
-            {% if wizard.form.forms %}
-                {{ wizard.form.management_form }}
-                {% for form in wizard.form.forms %}
-                    {% for field in form %}
-                    <div class="form-field">
-                        <div class="form-input-row">
-                            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
-                            {{ field }}
-                        </div>
-                        <div class="error-message" style="color: red;">
-                            {{ field.errors }}
-                        </div>
-                    </div>
-                    {% endfor %}
-            
-                {% endfor %}
-            {% endif %}
+        <form action="" method="post">
+        {% csrf_token %}
+        <table>
+            {% for field in form %}
+            <div class="form-field">
+                <div class="form-input-row">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+                    {{ field }}
+                </div>
+                <div class="error-message" style="color: red;">
+                    {{ field.errors }}
+                </div>
+            </div>
+            {% endfor %}
         </table>
+        <input type="submit" value="Submit">
+        </form>
         <div class="form-buttons">
             {% if wizard.steps.prev %}
             {% if wizard.steps.last %}
                 <button name="wizard_goto_step" type="submit" value="{{ wizard.steps.prev }}" class="form-button form-button-secondary">
                     {% trans "Previous" %}
-                </button>
-                <button name="save_and_add_another" type="submit" value="{{ wizard.steps.current }}" class="form-button form-button-secondary">
-                    {% trans "Save and add another" %}
                 </button>
                 <button type="submit" class="form-button form-button-primary" value="submit">
                     {% trans "Submit" %}

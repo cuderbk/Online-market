@@ -1,0 +1,12 @@
+{% extends 'core/base.html' %}
+
+
+{% block content %}
+  <h1>Lịch trình tour</h1>
+  {% for day in range(1, tour.so_ngay + 1) %}
+  <h3>Day {{ day }}</h3>
+  <a href="{% url 'tour:add_diadiem_thamquan' ma_tour=ma_tour lichtrinhtour=lichtrinhtour day_number=day %}">Add DiadiemThamquan</a>
+  {% endfor %}
+
+
+{% endblock %}

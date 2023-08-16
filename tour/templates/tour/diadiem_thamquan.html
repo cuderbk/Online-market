@@ -1,0 +1,17 @@
+{% extends 'core/base.html' %}
+
+
+{% block content %}
+  <h1>Địa điểm tham quan</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ diadiem_form.as_p }}
+    <button type="submit" name="save_and_add_another">Save and Add Another</button>
+    {% if has_next_day %}
+        <button type="submit" name="next_day">Next Day</button>
+    {% else %}
+        <button type="submit">Submit</button>
+    {% endif %}
+</form>
+
+{% endblock %}

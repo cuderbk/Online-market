@@ -90,7 +90,7 @@
                     {% for item in diadiem_thamquan %}
                         {% if item.id %}
                             <li>
-                                Ngày {{ item.stt_ngay }} - Địa điểm: {{ item.ma_diem }} - Thời gian bắt đầu: {{ item.thoigian_batdau }} - Thời gian kết thúc: {{ item.thoigian_ketthuc }} - Mô tả: {{ item.mo_ta }}
+                                Ngày {{ item.stt_ngay }} - Địa điểm: {{ item.ma_diem.ten_diem }} - Thời gian bắt đầu: {{ item.thoigian_batdau }} - Thời gian kết thúc: {{ item.thoigian_ketthuc }} - Mô tả: {{ item.mo_ta }}
                             </li>
                             <!-- You can further include sub-details if needed -->
                         {% else %}
