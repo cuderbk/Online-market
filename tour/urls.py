@@ -6,7 +6,15 @@ app_name = 'tour'
 
 urlpatterns = [
     path('', views.tours, name='tours'),
-    path('new/', views.NewTourView.as_view(), name='new'),
+    path('create_tour/', views.create_tour, name='create_tour'),
+    path('add_diadiem_thamquan/<tour>/<int:day_number>/', views.add_diadiem_thamquan, name='add_diadiem_thamquan'),
+    path('add_ngaykhoihanh_tour/<tour>/', views.add_ngaykhoihanh_tour, name='add_ngaykhoihanh_tour'),
+    
+
+    # path('ngaykhoihanh_tour/', views.ngaykhoihanh_tour_view),
+    # path('diadiem_thamquan/', views.diadiem_thamquan_view),
+    # path('lichtrinh_tour/', views.lichtrinh_tour_view),
+    # path('new/diadiem', views.Diadiemthamquan_view, name='diadiemthamquan_view'),
     path('<pk>/', views.detail, name='detail'),
     path('<pk>/delete/', views.delete, name='delete'),
     path('<pk>/edit/', views.edit, name='edit'),
