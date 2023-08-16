@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     # 'conversation',
     'core',
     'dashboard',
@@ -89,7 +90,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'bktourist',
         'USER': 'root',
-        'PASSWORD': '1234',
+        'PASSWORD': 'vy741852963',
         'HOST': 'localhost',
         'PORT': '3306',
         # 'OPTIONS': {

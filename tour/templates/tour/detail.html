@@ -1,6 +1,5 @@
-<!-- tour/detail.html -->
-
 {% extends 'core/base.html' %}
+{% load humanize %}
 
 {% block title %}{{ tour.ten_tour }}{% endblock %}
 
@@ -64,6 +63,136 @@
 {% endblock %}
 
 {% block content %}
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .banner{
+            width: 100%;
+            height: 100vh;
+            background-image: linear-gradient(rgba(0,0,0,0.75),rgba(0,0,0,0.75),url());
+            background-size: cover;
+            background-position: center;
+        }
+
+        .content{
+            width: 100%;
+            position: flex;
+            top: 50%;
+            text-align: center;
+            color: black;
+        }
+
+        .buy-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s, transform 0.2s;
+            cursor: pointer;
+        }
+
+        .buy-button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        .tour-info {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .tour-info h2 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .tour-detail {
+            margin-bottom: 15px;
+        }
+
+        .tour-detail strong {
+            display: inline-block;
+            width: 150px;
+            font-weight: bold;
+        }
+
+        .tour-price {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+
+        .tour-price strong {
+            color: #333;
+        }
+
+        .tour-branch {
+            color: #3498db;
+            font-weight: bold;
+        }
+
+        .schedule-entry {
+            border-left: 3px solid #3498db;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-heading {
+            text-align: center;
+            font-size: 28px;
+            color: #3498db;
+            margin-bottom: 30px;
+        }
+
+        .schedule-time {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+
+        .schedule-description {
+            color: #333;
+            margin-top: 5px;
+        }
+
+        .location {
+            font-weight: bold;
+            color: #2ecc71;
+        }
+
+        .schedule-images {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .schedule-images img {
+            max-width: 100%;
+            max-height: 200px;
+            margin: 10px;
+            border: 1px solid #ccc;
+            box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);
+        }
+    </style>
     <div class="py-6 px-4">
         <div class="grid grid-cols-3 gap-4">
             <div class="col-span-2">
@@ -72,36 +201,33 @@
                 <div>
                     <img src="{{ tour.anh }}" class="rounded-t-xl">
                 </div>
+                <div class="schedule-entry">
+                    <h2 class="schedule-heading">Lịch trình tour</h2>
+                    {% for item in diadiem_thamquan %}
+                        <div class="schedule-time">
+                            Ngày {{ item.id.stt_ngay }}, {{ item.thoigian_batdau|time:"H:i" }} - {{ item.thoigian_ketthuc|time:"H:i" }}
+                        </div>
+                        <div class="schedule-description">
+                            Thăm quan <b>{{ item.ma_diem.ten_diem }}</b> - {{ item.ma_diem.mo_ta }}
+                        </div>
+                        <div class="schedule-images">
+                            {% if item.ma_diem.anh1 %}
+                                <img src= "{{ item.ma_diem.anh1 }}" alt="{{ item.ma_diem.ten_diem }}">
+                            {% endif %}
+                            {% if item.ma_diem.anh2 %}
+                                <img src= "{{ item.ma_diem.anh2 }}" alt="{{ item.ma_diem.ten_diem }}">
+                            {% endif %}
+                            {% if item.ma_diem.anh3 %}
+                                <img src= "{{ item.ma_diem.anh3 }}" alt="{{ item.ma_diem.ten_diem }}">
+                            {% endif %}
+                            </div>
+                            <!-- You can further include sub-details if needed -->
+                        {% endfor %}
+                </div>
             </div>
-            <div class="col-span-1">
+            <div class="col-span-1 tour-info">
                 <!-- Display related items -->
                 <h2 class="text-xl font-semibold">Related Items</h2>
-                <p>Time: {{ tour.so_ngay }} {% if tour.so_ngay == 1 %}day{% else %}days{% endif %}{% if tour.so_dem > 0 %} {{ tour.so_dem }} {% endif %}{% if tour.so_dem == 1 %}night{%endif%}{% if tour.so_dem > 1 %}nights{%endif%}</p>
-                <p>Start: {{ tour.ngay_batdau }}</p>
-                <p>Tour code: {{ tour.ma_tour }}</p>
-                <p>Adult Price: {{ tour.giave_kl_nguoilon }} vnd</p>
-                <p>Child price: {{ tour.giave_kl_treem }} vnd</p>
-                <p>Adult Group Price: {{ tour.giave_kd_nguoilon }} vnd</p>
-                <p>Child Group price: {{ tour.giave_kd_treem }} vnd</p>
-                <p>Minimum number of guests: {{ tour.sokhachdoan_toithieu }}</p>
-                <p>Branch: {{ tour.ma_cn }}</p>
-                <h2 class="text-xl font-semibold">Lịch trình tour</h2>
-                <ul>
-                    {% for item in diadiem_thamquan %}
-                        {% if item.id %}
-                            <li>
-                                Ngày {{ item.stt_ngay }} - Địa điểm: {{ item.ma_diem.ten_diem }} - Thời gian bắt đầu: {{ item.thoigian_batdau }} - Thời gian kết thúc: {{ item.thoigian_ketthuc }} - Mô tả: {{ item.mo_ta }}
-                            </li>
-                            <!-- You can further include sub-details if needed -->
-                        {% else %}
-                            <li>
-                                toang
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-                
-                <a class="buy-button">Buy</a>
                 <ul>
                     {% for tour in related_tours %}
                         <li>
@@ -112,4 +238,5 @@
             </div>
         </div>
     </div>
+
 {% endblock %}

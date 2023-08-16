@@ -43,25 +43,14 @@ def tours(request):
 def detail(request, pk): 
 
     tour = get_object_or_404(Tour, pk=pk)
-    
-    try:
-        lttour = Lichtrinhtour.objects.filter(ma_tour=tour)
-    except Lichtrinhtour.DoesNotExist:
-        return JsonResponse({'message': 'Lichtrinhtour not found'})
-    
-    diadiem_list = []
-    for lttour in lttour:
-        diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk, stt_ngay=lttour.stt_ngay)
-        
-        if diadiem_thamquan.exists():
-            diadiem_list.extend(diadiem_thamquan.values())
+    tour_detail =get_object_or_404(Info, tour=tour)
+    # related_items = Info.objects.filter(category=tour_detail.category).exclude(pk=pk)[0:3]
 
     return render(request, 'tour/detail.html', {
         'tour': tour,
-        'diadiem_thamquan': diadiem_thamquan,
-        # 'diem_dulich': diem_dulich,
         # 'related_items': related_items
     })
+
 # @login_required
 
 # def get_tour_instace():
