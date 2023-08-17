@@ -1,5 +1,6 @@
 from django import forms
 
+from core.models import Phieudk
 from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi,DvccDvchuyendi, DvccDvlq
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
@@ -154,11 +155,8 @@ class EditTourForm(forms.ModelForm):
 
     class Meta:
         model = Tour
-        model = Tour
         fields = ('ten_tour','anh', 'ngay_batdau','giave_kl_nguoilon', 'giave_kl_treem', 'giave_kd_nguoilon', 'giave_kd_treem',
                     'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
-    class Meta:
-        model= Info
         
 class NewTicket(forms.ModelForm):
     class Meta:

@@ -3,8 +3,9 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Tour, Info, DiadiemThamquan, DiadiemThamquan, Lichtrinhtour, DiemDulich, LichtrinhChuyen
-from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm,DonviccdvChuyenForm, DonviccdvLienquan
+from core.models import KhachDoan, KhachDoanLe, KhachHang, Phieudk
+from .models import Category, Tour, Info, DiadiemThamquan, DiadiemThamquan, Lichtrinhtour, DiemDulich, LichtrinhChuyen, Chuyendi
+from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm,DonviccdvChuyenForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
@@ -48,24 +49,10 @@ def tours(request):
 def detail(request, pk): 
 
     tour = get_object_or_404(Tour, pk=pk)
-    
-    try:
-        lttour = Lichtrinhtour.objects.filter(ma_tour=tour)
-    except Lichtrinhtour.DoesNotExist:
-        return JsonResponse({'message': 'Lichtrinhtour not found'})
-    
-    diadiem_list = []
-    for lttour in lttour:
-        diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk, stt_ngay=lttour.stt_ngay)
-        
-        if diadiem_thamquan.exists():
-            diadiem_list.extend(diadiem_thamquan.values())
-
+    diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
     return render(request, 'tour/detail.html', {
         'tour': tour,
         'diadiem_thamquan': diadiem_thamquan,
-        # 'diem_dulich': diem_dulich,
-        # 'related_items': related_items
     })
 
 def create_tour(request):
@@ -217,18 +204,18 @@ def buy(request, pk):
         participants = request.POST['participants']
         departure_date = request.POST['departure_date']
         existing_khachdoan = KhachDoan.objects.filter(email=email, sdt=phone).first()
-        if existing_khachdoan:
-            khachdoan = existing_khachdoan
-        else:
-            # Create a new KhachDoan instance if not exists
-            khachdoan = KhachDoan.objects.create(
-                ten_coquan=full_name,
-                email=email,
-                sdt=phone,
-            )
-        khachhang = KhachHang.objects.create(...)
-        khachdoanle = KhachDoanLe.objects.create(...)
-        phieudk = Phieudk.objects.create(...)
+        # if existing_khachdoan:
+        #     khachdoan = existing_khachdoan
+        # else:
+        #     # Create a new KhachDoan instance if not exists
+        #     khachdoan = KhachDoan.objects.create(
+        #         ten_coquan=full_name,
+        #         email=email,
+        #         sdt=phone,
+        #     )
+        # khachhang = KhachHang.objects.create(...)
+        # khachdoanle = KhachDoanLe.objects.create(...)
+        # phieudk = Phieudk.objects.create(...)
         return redirect('booking_success')  # Redirect to a success page
     
     return render(request, 'tour/buy.html',{
