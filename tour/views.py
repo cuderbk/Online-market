@@ -3,9 +3,9 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from core.models import KhachDoan, KhachDoanLe, KhachHang, Phieudk
+from core.models import KhachDoan, KhachDoanLe, KhachHang, Phieudk, NhanVien
 from .models import Category, Tour, Info, DiadiemThamquan, DiadiemThamquan, Lichtrinhtour, DiemDulich, LichtrinhChuyen, Chuyendi
-from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm,DonviccdvChuyenForm
+from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm,DonviccdvChuyenForm, BookingForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
@@ -14,6 +14,7 @@ from .models import Category, Info, MultiStepFormModel
 from formtools.wizard.views import SessionWizardView
 from django.db.models import Case, When, IntegerField
 
+from django.utils import timezone
 from datetime import timedelta
 from collections import OrderedDict
 from django.db import transaction
@@ -43,10 +44,9 @@ def tours(request):
         # 'category_id': int(category_id) if category_id else None,
         # # 'categories': categories,
     }
-
     return render(request, 'tour/tours.html', context=context)
 
-def detail(request, pk): 
+def detail(request, pk):
 
     tour = get_object_or_404(Tour, pk=pk)
     diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
@@ -196,32 +196,48 @@ def add_hanhdong_lichtrinh_tour(request,tour,day_number):
 
 def buy(request, pk):
     tour = get_object_or_404(Tour, pk=pk)
-    chuyendi = Chuyendi.objects.filter(ma_tour=pk)
+    today = timezone.now().date()
+    chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh__gt=today) if tour.so_ngay == 1 else Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh__gt=today+timedelta(days=2))
+    nhan_vien = NhanVien.objects.filter(ma_cn=tour.ma_cn, cong_viec=1).first()
     if request.method == 'POST':
-        full_name = request.POST['name']
-        email = request.POST['email']
-        phone = request.POST['phone']
-        participants = request.POST['participants']
-        departure_date = request.POST['departure_date']
-        existing_khachdoan = KhachDoan.objects.filter(email=email, sdt=phone).first()
-        # if existing_khachdoan:
-        #     khachdoan = existing_khachdoan
-        # else:
-        #     # Create a new KhachDoan instance if not exists
-        #     khachdoan = KhachDoan.objects.create(
-        #         ten_coquan=full_name,
-        #         email=email,
-        #         sdt=phone,
-        #     )
-        # khachhang = KhachHang.objects.create(...)
-        # khachdoanle = KhachDoanLe.objects.create(...)
-        # phieudk = Phieudk.objects.create(...)
-        return redirect('booking_success')  # Redirect to a success page
-    
-    return render(request, 'tour/buy.html',{
+        print('ok')
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            email = data['email']
+            phone = data['phone']
+            chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh=data['departure_date']).first()
+            existing_khachhang = KhachHang.objects.filter(email=email, sdt=phone).first()
+            if existing_khachhang:
+                khachhang = existing_khachhang
+            else:
+                khachhang = KhachHang.objects.create(
+                        ho_ten = data['name'],
+                        email = email,
+                        sdt = phone,
+                        dia_chi = data['address'],
+                )
+            print('ok1')
+            if not Phieudk.objects.filter(ma_kh=khachhang, chuyendi=chuyendi).first():
+                phieudk = Phieudk.objects.create(
+                    ngay_dangky=today,
+                    ma_nv= nhan_vien,  # Assuming you have a logged-in user
+                    ma_kh=khachhang,
+                    ma_tour=chuyendi.ma_tour,
+                    ngay_khoihanh=chuyendi.ngay_khoihanh,
+                    chuyendi=chuyendi
+                )
+                print('ok2')
+            print('ok3')
+            return render(request, 'tour/booking_success.html')  # Redirect to a success page
+    else:
+        form = BookingForm()
+    return render(request, 'tour/buy.html', {
         'tour': tour,
         'chuyendi': chuyendi,
+        'form': form,
     })
+    
 @login_required
 def edit(request, pk):
     tour = get_object_or_404(Tour, pk=pk)

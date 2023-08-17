@@ -60,7 +60,8 @@
         <h2>Purchase Information</h2>
         <p>Thank you for choosing this tour! Please provide your information to complete the booking.</p>
         
-        <form class="booking-form">
+        <form class="booking-form" method="post">
+            {% csrf_token %}
             <label for="name">Full Name:</label>
             <input type="text" id="name" name="name" required>
             
@@ -69,6 +70,9 @@
             
             <label for="phone">Phone Number:</label>
             <input type="tel" id="phone" name="phone" required>
+
+            <label for="address">Address:</label>
+            <input type="text" id="address" name="address" required>
             
             <label for="participants">Number of Participants:</label>
             <input type="number" id="participants" name="participants" min="1" required>

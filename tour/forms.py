@@ -157,8 +157,11 @@ class EditTourForm(forms.ModelForm):
         model = Tour
         fields = ('ten_tour','anh', 'ngay_batdau','giave_kl_nguoilon', 'giave_kl_treem', 'giave_kd_nguoilon', 'giave_kd_treem',
                     'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
-        
-class NewTicket(forms.ModelForm):
-    class Meta:
-        model = Phieudk
-        fields =('ma_phieu', 'ngay_dangky', 'ghichu', 'ma_nv', 'ma_doan', 'ma_kh', 'ma_tour', 'ngay_khoihanh')
+
+class BookingForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    phone = forms.CharField(max_length=10)
+    address = forms.CharField(max_length=100)
+    participants = forms.IntegerField(min_value=1)
+    departure_date = forms.DateField()
