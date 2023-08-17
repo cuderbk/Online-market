@@ -3,6 +3,65 @@
 
 {% block title %}{{ tour.ten_tour }}{% endblock %}
 
+{% block styles %}
+<style>
+    /* Custom styles for the tour detail page */
+    .tour-details {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin: 2rem 0;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); 
+    }
+   .tour-image {
+        flex: 0 0 40%;
+        margin-right: 2rem;
+    }
+
+    .tour-image img {
+        width: 100%;
+        border-radius: 8px;
+    }
+
+    .tour-content {
+        flex: 1;
+    }
+
+    .tour-title {
+        font-size: 2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .tour-price {
+        font-size: 1.2rem;
+        color: #e74c3c;
+        margin-bottom: 0.5rem;
+    }
+    .buy-button {
+        margin-top: 1rem;
+        padding: 0.5rem 1rem;
+        font-size: 1.25rem;
+        background-color: #008080;
+        color: white;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        display: inline-block;
+        transition: background-color 0.3s;
+    }
+
+    .buy-button:hover {
+        background-color: #006666;
+    }
+
+    /* Add more custom styles for other fields */
+</style>
+{% endblock %}
+
 {% block content %}
     <style>
         * {
@@ -168,39 +227,7 @@
             </div>
             <div class="col-span-1 tour-info">
                 <!-- Display related items -->
-                <h2>Thông tin tour</h2>
-                <div class="tour-detail">
-                    <p><strong>Thời gian:</strong> {{ tour.so_ngay }} ngày {% if tour.so_dem > 0 %}{{ tour.so_dem }} đêm{% endif %}</p>
-                </div>
-                <div class="tour-detail">
-                    <strong>Khởi hành:</strong> {{ tour.ngay_batdau }}
-                </div>
-                <div class="tour-detail">
-                    <strong>Mã tour:</strong> {{ tour.ma_tour }}
-                </div>
-                <div class="tour-detail">
-                    <strong>Chi nhánh:</strong> {{ tour.ma_cn}}
-                </div>
-
-                <div class="tour-detail tour-price">
-                    <strong>Giá vé</strong>
-                    <div>
-                        Giá vé khách lẻ người lớn: <strong>{{ tour.giave_kl_nguoilon|intcomma }} VNĐ</strong>
-                    </div>
-                    <div>
-                        Giá vé khách lẻ trẻ em: <strong>{{ tour.giave_kl_treem|intcomma }} VNĐ</strong>
-                    </div>
-                    <div>
-                        Giá vé khách đoàn người lớn: <strong>{{ tour.giave_kd_nguoilon|intcomma }} VNĐ</strong>
-                    </div>
-                    <div>
-                        Giá vé khách đoàn trẻ em: <strong>{{ tour.giave_kd_treem|intcomma }} VNĐ</strong>
-                    </div>
-                    <div>
-                        Số khách đoàn tối thiểu: <strong>{{ tour.sokhachdoan_toithieu }}</strong>
-                    </div>
-                </div>
-                <a class="buy-button" href="buy/">BUY</a>
+                <h2 class="text-xl font-semibold">Related Items</h2>
                 <ul>
                     {% for tour in related_tours %}
                         <li>

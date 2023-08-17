@@ -29,7 +29,7 @@ class KhachHang(models.Model):
         db_table = 'khach_hang'
 
 
-class KhackDoanLe(models.Model):
+class KhachDoanLe(models.Model):
     ma_doan = models.OneToOneField(KhachDoan, models.DO_NOTHING, db_column='ma_doan', primary_key=True)
     ma_kh = models.ForeignKey(KhachHang, models.DO_NOTHING, db_column='ma_kh')
 

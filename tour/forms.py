@@ -1,7 +1,6 @@
 from django import forms
 
-from core.models import Phieudk
-from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi
+from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi,DvccDvchuyendi, DvccDvlq
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Submit, Layout
@@ -70,8 +69,8 @@ class HanhdongLichtrinhtourForm(forms.ModelForm):
             'mo_ta': 'Mô tả',
         }
         widgets = {
-            'thoigian_batdau': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
-            'thoigian_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'thoigian_batdau': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
+            'thoigian_ketthuc': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
             'mo_ta': forms.Textarea(attrs={'class': 'form-input'}),
         }
 
@@ -115,8 +114,8 @@ class DiadiemThamquanForm(forms.ModelForm):
             'mo_ta': 'Mô tả',
         }
         widgets = {
-            'thoigian_batdau': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
-            'thoigian_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'thoigian_batdau': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
+            'thoigian_ketthuc': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
             'mo_ta': forms.Textarea(attrs={'class': 'form-input'}),
         }
 class ChuyenDiForm(forms.ModelForm):
@@ -130,11 +129,26 @@ class ChuyenDiForm(forms.ModelForm):
             'ngay_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
             'tonggia': forms.NumberInput(attrs={'class': 'form-input'}),
         }
+class DonviccdvChuyenForm(forms.ModelForm):
+    class Meta:
+        model = DvccDvchuyendi
+        fields = ('loai', 'ma_donvi',)
+        widgets = {
+            'loai':forms.Select(attrs={'class': 'form-input'}),
+            'ma_donvi':forms.Select(attrs={'class': 'form-input'}),
+        }
+class DonviccdvLienquan(forms.ModelForm):
+    class Meta:
+        model = DvccDvlq
+        fields = ('ma_diem', 'ma_donvi',)
+        widgets = {
+            'ma_diem':forms.NumberInput(attrs={'class': 'form-input'}),
+            'ma_donvi':forms.Select(attrs={'class': 'form-input'}),
+        }
 class NewTourInfoForm(forms.ModelForm):
     class Meta:
         model= Info
         fields =('category','diemxp','diemden','description','status')
-
 
 class EditTourForm(forms.ModelForm):
 
@@ -145,7 +159,6 @@ class EditTourForm(forms.ModelForm):
                     'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
     class Meta:
         model= Info
-        fields =('category','diemxp','diemden','description','status')
         
 class NewTicket(forms.ModelForm):
     class Meta:

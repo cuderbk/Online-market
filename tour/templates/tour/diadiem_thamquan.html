@@ -1,0 +1,41 @@
+{% extends 'core/base.html' %}
+
+
+{% block content %}
+<div class="form-container">
+    <h1 class="form-heading">Thêm địa điểm tham quan cho ngày {{day}}</h1>
+    <form  method="post">
+      {% csrf_token %}
+      {%if diadiem_form.errors%}
+      <div class="alert alert-warning" role="alert">
+          Dữ liệu gửi lên không đúng, xin vui lòng kiểm tra lại!
+        </div>
+      {%endif%}
+  
+      <table class="mt-4 w-full">
+      {% comment %} {{ tour_form.as_p }} {% endcomment %}
+      {% for field in diadiem_form %}
+          <div class="form-field">
+              <div class="form-input-row">
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+                  {{ field }}
+              </div>
+              <div class="error-message" style="color: red;">
+                  {{ field.errors }}
+              </div>
+          </div>
+      {% endfor %}
+      </table>
+  
+      <div class="form-buttons">
+        <button type="submit" class="form-button-primary form-button" name="save_and_add_another">Save and Add Another</button>
+        {% if has_next_day %}
+            <button type="submit" class="form-button-primary form-button" name="hdtour">Thêm hoạt động</button>
+        {% else %}
+            <button type="submit" class="form-button-primary form-button">Submit</button>
+        {% endif %}
+        </div>
+    </form>
+    
+  </div>
+{% endblock %}
