@@ -163,5 +163,6 @@ class BookingForm(forms.Form):
     email = forms.EmailField()
     phone = forms.CharField(max_length=10)
     address = forms.CharField(max_length=100)
+    group = forms.CharField(max_length=6, required=False)
     participants = forms.IntegerField(min_value=1)
-    departure_date = forms.DateField()
+    departure_date = forms.DateField(input_formats=['%b. %d, %Y'])

@@ -200,7 +200,6 @@ def buy(request, pk):
     chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh__gt=today) if tour.so_ngay == 1 else Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh__gt=today+timedelta(days=2))
     nhan_vien = NhanVien.objects.filter(ma_cn=tour.ma_cn, cong_viec=1).first()
     if request.method == 'POST':
-        print('ok')
         form = BookingForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
@@ -209,27 +208,41 @@ def buy(request, pk):
             chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh=data['departure_date']).first()
             existing_khachhang = KhachHang.objects.filter(email=email, sdt=phone).first()
             if existing_khachhang:
-                khachhang = existing_khachhang
+                khach_hang = existing_khachhang
             else:
-                khachhang = KhachHang.objects.create(
+                khach_hang = KhachHang.objects.create(
                         ho_ten = data['name'],
                         email = email,
                         sdt = phone,
                         dia_chi = data['address'],
                 )
-            print('ok1')
-            if not Phieudk.objects.filter(ma_kh=khachhang, chuyendi=chuyendi).first():
-                phieudk = Phieudk.objects.create(
-                    ngay_dangky=today,
-                    ma_nv= nhan_vien,  # Assuming you have a logged-in user
-                    ma_kh=khachhang,
-                    ma_tour=chuyendi.ma_tour,
-                    ngay_khoihanh=chuyendi.ngay_khoihanh,
-                    chuyendi=chuyendi
+                
+            if data['participants'] >= tour.sokhachdoan_toithieu:
+                khach_doan = KhachDoan.objects.create(
+                    ma_daidien = khach_hang
                 )
-                print('ok2')
-            print('ok3')
-            return render(request, 'tour/booking_success.html')  # Redirect to a success page
+
+            if KhachDoan.objects.filter(ma_doan=data['group']).exists():
+                    khach_doan = KhachDoan.objects.filter(ma_doan=data['group']).first()
+                    khach_doan_le = KhachDoanLe.objects.create(
+                        ma_doan = khach_doan,
+                        ma_kh = khach_hang
+                    )
+                
+            phieudk = Phieudk.objects.create(
+                ngay_dangky=today,
+                ma_nv= nhan_vien,  # Assuming you have a logged-in user
+                ma_kh=khach_hang,
+                ma_tour=chuyendi.ma_tour,
+                ngay_khoihanh=chuyendi.ngay_khoihanh,
+                chuyendi=chuyendi
+            )
+            
+            for key, value in khach_doan.__dict__.items():
+                print(f"{key}: {value}")
+            return render(request, 'tour/booking_success.html', {
+                'khach_doan': khach_doan,
+                })  # Redirect to a success page
     else:
         form = BookingForm()
     return render(request, 'tour/buy.html', {
