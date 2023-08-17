@@ -3,8 +3,9 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Tour, Info, DiadiemThamquan, DiadiemThamquan, Lichtrinhtour, DiemDulich, LichtrinhChuyen
-from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm,DonviccdvChuyenForm, DonviccdvLienquan
+from core.models import KhachDoan, KhachDoanLe, KhachHang, Phieudk, NhanVien
+from .models import Category, Tour, Info, DiadiemThamquan, DiadiemThamquan, Lichtrinhtour, DiemDulich, LichtrinhChuyen, Chuyendi
+from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm,DonviccdvChuyenForm, BookingForm
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.http import HttpResponseRedirect
@@ -13,6 +14,7 @@ from .models import Category, Info, MultiStepFormModel
 from formtools.wizard.views import SessionWizardView
 from django.db.models import Case, When, IntegerField
 
+from django.utils import timezone
 from datetime import timedelta
 from collections import OrderedDict
 from django.db import transaction
@@ -42,30 +44,15 @@ def tours(request):
         # 'category_id': int(category_id) if category_id else None,
         # # 'categories': categories,
     }
-
     return render(request, 'tour/tours.html', context=context)
 
-def detail(request, pk): 
+def detail(request, pk):
 
     tour = get_object_or_404(Tour, pk=pk)
-    
-    try:
-        lttour = Lichtrinhtour.objects.filter(ma_tour=tour)
-    except Lichtrinhtour.DoesNotExist:
-        return JsonResponse({'message': 'Lichtrinhtour not found'})
-    
-    diadiem_list = []
-    for lttour in lttour:
-        diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk, stt_ngay=lttour.stt_ngay)
-        
-        if diadiem_thamquan.exists():
-            diadiem_list.extend(diadiem_thamquan.values())
-
+    diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
     return render(request, 'tour/detail.html', {
         'tour': tour,
         'diadiem_thamquan': diadiem_thamquan,
-        # 'diem_dulich': diem_dulich,
-        # 'related_items': related_items
     })
 
 def create_tour(request):
@@ -209,9 +196,61 @@ def add_hanhdong_lichtrinh_tour(request,tour,day_number):
 
 def buy(request, pk):
     tour = get_object_or_404(Tour, pk=pk)
-    return render(request, 'tour/buy.html',{
-        'tour':tour,
+    today = timezone.now().date()
+    chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh__gt=today) if tour.so_ngay == 1 else Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh__gt=today+timedelta(days=2))
+    nhan_vien = NhanVien.objects.filter(ma_cn=tour.ma_cn, cong_viec=1).first()
+    if request.method == 'POST':
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            email = data['email']
+            phone = data['phone']
+            chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh=data['departure_date']).first()
+            existing_khachhang = KhachHang.objects.filter(email=email, sdt=phone).first()
+            if existing_khachhang:
+                khach_hang = existing_khachhang
+            else:
+                khach_hang = KhachHang.objects.create(
+                        ho_ten = data['name'],
+                        email = email,
+                        sdt = phone,
+                        dia_chi = data['address'],
+                )
+                
+            if data['participants'] >= tour.sokhachdoan_toithieu:
+                khach_doan = KhachDoan.objects.create(
+                    ma_daidien = khach_hang
+                )
+
+            if KhachDoan.objects.filter(ma_doan=data['group']).exists():
+                    khach_doan = KhachDoan.objects.filter(ma_doan=data['group']).first()
+                    khach_doan_le = KhachDoanLe.objects.create(
+                        ma_doan = khach_doan,
+                        ma_kh = khach_hang
+                    )
+                
+            phieudk = Phieudk.objects.create(
+                ngay_dangky=today,
+                ma_nv= nhan_vien,  # Assuming you have a logged-in user
+                ma_kh=khach_hang,
+                ma_tour=chuyendi.ma_tour,
+                ngay_khoihanh=chuyendi.ngay_khoihanh,
+                chuyendi=chuyendi
+            )
+            
+            for key, value in khach_doan.__dict__.items():
+                print(f"{key}: {value}")
+            return render(request, 'tour/booking_success.html', {
+                'khach_doan': khach_doan,
+                })  # Redirect to a success page
+    else:
+        form = BookingForm()
+    return render(request, 'tour/buy.html', {
+        'tour': tour,
+        'chuyendi': chuyendi,
+        'form': form,
     })
+    
 @login_required
 def edit(request, pk):
     tour = get_object_or_404(Tour, pk=pk)

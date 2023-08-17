@@ -1,5 +1,6 @@
 from django import forms
 
+from core.models import Phieudk
 from .models import Tour, Info, NgaykhoihanhTourdai, ChiNhanh, Lichtrinhtour, DiadiemThamquan, HanhdongLichtrinhtour, LichtrinhChuyen, HdvChuyendi, Chuyendi,DvccDvchuyendi, DvccDvlq
 from django.contrib.auth.models import User
 from crispy_forms.helper import FormHelper
@@ -152,11 +153,16 @@ class NewTourInfoForm(forms.ModelForm):
 
 class EditTourForm(forms.ModelForm):
 
-     class Meta:
-        model = Tour
+    class Meta:
         model = Tour
         fields = ('ten_tour','anh', 'ngay_batdau','giave_kl_nguoilon', 'giave_kl_treem', 'giave_kd_nguoilon', 'giave_kd_treem',
-                  'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
-     class Meta:
-        model= Info
-        fields =('category','diemxp','diemden','description','status')
+                    'sokhach_toithieu', 'sokhach_toida', 'sokhachdoan_toithieu', 'so_dem', 'so_ngay', 'ma_cn')
+
+class BookingForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    email = forms.EmailField()
+    phone = forms.CharField(max_length=10)
+    address = forms.CharField(max_length=100)
+    group = forms.CharField(max_length=6, required=False)
+    participants = forms.IntegerField(min_value=1)
+    departure_date = forms.DateField(input_formats=['%b. %d, %Y'])

@@ -227,8 +227,43 @@
             </div>
             <div class="col-span-1 tour-info">
                 <!-- Display related items -->
+                <div class="tour-info">
+                    <h2>Thông tin tour</h2>
+                    <div class="tour-detail">
+                        <strong>Thời gian:</strong> {{tour.so_ngay}} ngày {{tour.so_dem}} đêm
+                    </div>
+                    <div class="tour-detail">
+                        <strong>Khởi hành:</strong> {{tour.ngay_batdau}}
+                    </div>
+                    <div class="tour-detail">
+                        <strong>Mã tour:</strong> {{tour.ma_tour}}
+                    </div>
+                    <div class="tour-detail">
+                        <strong>Chi nhánh:</strong> {{tour.ma_cn}}
+                    </div>
+                    <div class="tour-detail tour-price">
+                        <strong>Giá vé</strong>
+                        <div>
+                            Giá vé khách lẻ người lớn: <strong>{{tour.giave_kl_nguoilon|intcomma}} VNĐ</strong>
+                        </div>
+                        <div>
+                            Giá vé khách lẻ trẻ em: <strong>{{tour.giave_kl_treem|intcomma}} VNĐ</strong>
+                        </div>
+                        <div>
+                            Giá vé khách đoàn người lớn: <strong>{{tour.giave_kd_nguoilon|intcomma}} VNĐ</strong>
+                        </div>
+                        <div>
+                            Giá vé khách đoàn trẻ em: <strong>{{tour.giave_kd_treem|intcomma}} VNĐ</strong>
+                        </div>
+                        <div>
+                            Số khách đoàn tối thiểu: <strong>{{tour.sokhachdoan_toithieu}}</strong>
+                        </div>
+                    </div>
+                    <a href="{% url 'tour:buy' tour.pk %}" class="buy-button">Buy</a>
+                </div>
                 <h2 class="text-xl font-semibold">Related Items</h2>
                 <ul>
+                    <p>
                     {% for tour in related_tours %}
                         <li>
                             <a href="{% url 'tour:detail' tour.pk %}">{{ tour.ten_tour }}</a>

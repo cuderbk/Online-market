@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect
 
+from django.contrib.auth import authenticate, login, logout
+
 from tour.models import Category, Tour
 
 from .forms import SignupForm
@@ -28,3 +30,7 @@ def signup(request):
     return render(request, 'core/signup.html', {
         'form': form
     })
+
+def logout_user(request):
+    logout(request)
+    return redirect('/')

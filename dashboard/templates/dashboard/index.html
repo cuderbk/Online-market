@@ -3,26 +3,67 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="col-span-3">
-    <div class="grid grid-cols-3 gap-3">
-        {% for tour in tours %}
-            <div>
-                {% if tour.ma_tour %}
-                <a href="{% url 'tour:detail' tour.ma_tour %}">
-                    <div>
-                        <div>
-                            <img src="{{ tour.anh }}" class="rounded-t-xl">
-                        </div>
-                    </div>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
 
-                    <div class="p-6 bg-white rounded-b-xl">
-                        <h2 class="text-2xl">{{ tour.ten_tour }}</h2>
-                        <p class="text-gray-500">Price: {{ tour.giave_kl_nguoilon }}</p>
-                    </div>
-                </a>
-                {%endif%}
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        table {
+            border-collapse: collapse;
+            width: 80%;
+            margin: 20px auto;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+        }
+
+        thead {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .input-year {
+            margin:10px;
+        }
+
+    </style>
+    <div class="w-1/2 my-6 mx-auto p-6 bg-gray-100 rounded-xl">
+        <h1>Thống Kê Doanh Thu</h1>
+        <form method="get" novalidate>
+            <div class="input-year">
+                {{ form.as_p }}
             </div>
-        {% endfor %}
+                <button class="py-4 px-8 text-lg bg-teal-500 hover:bg-teal-700 rounded-xl text-white">Submit</button>
+        </form>
+        <table id="doanhThuTable">
+            <thead>
+                <tr>
+                    <th>Tháng</th>
+                    <th>Doanh Thu (VNĐ)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for result in results %}
+                <tr>
+                    <td>{{ result.0 }}</td>
+                    <td>{{ result.1 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
-</div>
 {% endblock %}

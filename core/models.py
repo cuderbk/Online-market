@@ -1,5 +1,8 @@
 from django.db import models
 from django.db.models import ForeignKey
+from compositefk.fields import CompositeForeignKey, _
+from collections import OrderedDict
+from django.db.models.deletion import CASCADE, DO_NOTHING
 
 # Create your models here.
 class KhachDoan(models.Model):
@@ -29,7 +32,7 @@ class KhachHang(models.Model):
         db_table = 'khach_hang'
 
 
-class KhackDoanLe(models.Model):
+class KhachDoanLe(models.Model):
     ma_doan = models.OneToOneField(KhachDoan, models.DO_NOTHING, db_column='ma_doan', primary_key=True)
     ma_kh = models.ForeignKey(KhachHang, models.DO_NOTHING, db_column='ma_kh')
 
@@ -70,7 +73,7 @@ class NhanVien(models.Model):
     class Meta:
         managed = False
         db_table = 'nhan_vien'
-        
+
 class Phieudk(models.Model):
     ma_phieu = models.CharField(primary_key=True, max_length=8)
     ngay_dangky = models.DateField()
@@ -78,9 +81,12 @@ class Phieudk(models.Model):
     ma_nv = models.ForeignKey(NhanVien, models.DO_NOTHING, db_column='ma_nv')
     ma_doan = models.ForeignKey(KhachDoan, models.DO_NOTHING, db_column='ma_doan', blank=True, null=True)
     ma_kh = models.ForeignKey(KhachHang, models.DO_NOTHING, db_column='ma_kh', blank=True, null=True)
-    ma_tour = models.ForeignKey('tour.Chuyendi', models.DO_NOTHING, db_column='ma_tour', related_name='phieudk_ma_tour')
-    ngay_khoihanh = models.ForeignKey('tour.Chuyendi', models.DO_NOTHING, db_column='ngay_khoihanh', related_name= 'phieudk_ngay_khoihanh')
-
+    ma_tour = models.CharField(max_length=12)
+    ngay_khoihanh = models.DateField(max_length=12)
+    chuyendi =  CompositeForeignKey('tour.Chuyendi', on_delete=CASCADE, related_name='phieu_dk_chuyendi', to_fields=OrderedDict([
+        ("ma_tour", "ma_tour"),
+        ("ngay_khoihanh", "ngay_khoihanh"),
+    ]))
     class Meta:
         managed = False
         db_table = 'phieudk'
