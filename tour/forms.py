@@ -69,8 +69,8 @@ class HanhdongLichtrinhtourForm(forms.ModelForm):
             'mo_ta': 'Mô tả',
         }
         widgets = {
-            'thoigian_batdau': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
-            'thoigian_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'thoigian_batdau': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
+            'thoigian_ketthuc': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
             'mo_ta': forms.Textarea(attrs={'class': 'form-input'}),
         }
 
@@ -114,8 +114,8 @@ class DiadiemThamquanForm(forms.ModelForm):
             'mo_ta': 'Mô tả',
         }
         widgets = {
-            'thoigian_batdau': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
-            'thoigian_ketthuc': forms.DateInput(attrs={'class': 'form-input', 'type': 'date'}),
+            'thoigian_batdau': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
+            'thoigian_ketthuc': forms.TimeInput(attrs={'class': 'form-input', 'type': 'time'}),
             'mo_ta': forms.Textarea(attrs={'class': 'form-input'}),
         }
 class ChuyenDiForm(forms.ModelForm):
@@ -134,7 +134,7 @@ class DonviccdvChuyenForm(forms.ModelForm):
         model = DvccDvchuyendi
         fields = ('loai', 'ma_donvi',)
         widgets = {
-            'loai':forms.NumberInput(attrs={'class': 'form-input'}),
+            'loai':forms.Select(attrs={'class': 'form-input'}),
             'ma_donvi':forms.Select(attrs={'class': 'form-input'}),
         }
 class DonviccdvLienquan(forms.ModelForm):

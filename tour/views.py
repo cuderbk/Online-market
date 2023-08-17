@@ -17,6 +17,11 @@ from datetime import timedelta
 from collections import OrderedDict
 from django.db import transaction
 
+from django.forms import BaseFormSet
+from django.urls import reverse
+
+from django.forms import formset_factory
+
 def tours(request):
     query = request.GET.get('query', '')
     # category_id = request.GET.get('category')
@@ -43,83 +48,25 @@ def tours(request):
 def detail(request, pk): 
 
     tour = get_object_or_404(Tour, pk=pk)
-    tour_detail =get_object_or_404(Info, tour=tour)
-    # related_items = Info.objects.filter(category=tour_detail.category).exclude(pk=pk)[0:3]
+    
+    try:
+        lttour = Lichtrinhtour.objects.filter(ma_tour=tour)
+    except Lichtrinhtour.DoesNotExist:
+        return JsonResponse({'message': 'Lichtrinhtour not found'})
+    
+    diadiem_list = []
+    for lttour in lttour:
+        diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk, stt_ngay=lttour.stt_ngay)
+        
+        if diadiem_thamquan.exists():
+            diadiem_list.extend(diadiem_thamquan.values())
 
     return render(request, 'tour/detail.html', {
         'tour': tour,
+        'diadiem_thamquan': diadiem_thamquan,
+        # 'diem_dulich': diem_dulich,
         # 'related_items': related_items
     })
-
-# @login_required
-
-# def get_tour_instace():
-#     return Tour.objects.all().last()
-# def tour_view(request):
-#     if request.method == 'POST':
-#         form = NewTourForm(request.POST)
-#         if form.is_valid():
-#             tour = form.save()
-#             tour_instance = get_tour_instace()
-#             if tour.so_ngay:
-#                 return redirect(reverse('tour:ngaykhoihanh_tour'))
-#             else:
-#                 return redirect(reverse('tour:diadiem_thamquan'))
-#     else:
-#         form = NewTourForm()
-#     return render(request, 'tour/tour.html', {'form': form})
-
-# def ngaykhoihanh_tour_view(request):
-#     if request.method == 'POST':
-#         form = NgayKhoiHanhTourForm(request.POST)
-#         if form.is_valid():
-#             ngaykhoihanh_tour = form.save(commit=False)
-#             tour_instance = get_tour_instace
-#             ngaykhoihanh_tour.ma_tour = ma_tour
-#             ngaykhoihanh_tour.save()
-#             return redirect('tours/diadiem_thamquan', ma_tour = tour_instance)
-#     else:
-#         form = NgayKhoiHanhTourForm()
-#     return render(request, 'tours/ngaykhoihanh_tour.html', {'form': form})
-
-# def diadiem_thamquan_view(request, ma_tour):
-#     if request.method == 'POST':
-#         form = DiadiemThamquanForm(request.POST)
-#         if form.is_valid():
-#             diadiem_thamquan = form.save(commit=False)
-#             diadiem_thamquan.ma_tour = ma_tour
-#             diadiem_thamquan.save()
-#             if 'save_and_add_another' in request.POST:
-#                 return redirect('tours/diadiem_thamquan', ma_tour=ma_tour)
-#             else:
-#                 return redirect('tours/lichtrinh_tour', ma_tour=ma_tour)
-#     else:
-#         form = DiadiemThamquanForm()
-#     return render(request, 'tours/diadiem_thamquan.html', {'form': form})
-
-# def lichtrinh_tour_view(request, ma_tour):
-#     Lichtrinhtour_instance = []
-#     for i in range(1, Tour.objects.get(id=ma_tour).so_ngay + 1):
-#         Lichtrinhtour_instance.append(Lichtrinhtour(stt_ngay=i))
-#     if request.method == 'POST':
-#         forms = [LichtrinhtourForm(request.POST, prefix=str(i), instance=instance) for i, instance in enumerate(Lichtrinhtour_instance)]
-#         if all([form.is_valid() for form in forms]):
-#             for form in forms:
-#                 lichtrinh_tour = form.save(commit=False)
-#                 tour_instance = get_tour_instace
-#                 lichtrinh_tour.ma_tour = tour_instance
-#                 lichtrinh_tour.save()
-#             return HttpResponse('success')
-#     else:
-#         forms = [LichtrinhtourForm(prefix=str(i), instance=instance) for i, instance in enumerate(Lichtrinhtour_instance)]
-#     return render(request, 'tours/lichtrinh_tour.html', {'forms': forms})
-
-def show_ngaykh_tourdaingay_form(wizard):
-    cleaned_data= wizard.get_cleaned_data_for_step('0') or {}
-    return cleaned_data.get('so_dem')
-
-from collections import OrderedDict
-from django.forms import BaseFormSet
 
 def create_tour(request):
         if request.method == 'POST':
@@ -135,13 +82,11 @@ def create_tour(request):
                 if has_ngay:
                     return redirect('tour:add_ngaykhoihanh_tour', tour = TourInstance.ma_tour)
                 else:
-                    if lichtrinhtour_form.is_valid():
-                        for i in range(1, tour.so_ngay + 1):
-                            lichtrinhtour_instance = Lichtrinhtour(stt_ngay=i)
-                            lichtrinhtour_instance.save()
-                            tour.lichtrinhtour_set.add(lichtrinhtour_instance)
+                    lichtrinhtour_instance = Lichtrinhtour(stt_ngay=1, ma_tour=TourInstance)
+                    lichtrinhtour_instance.save()
 
-                    return redirect(reverse('tour:lichtrinh_tour'), tour = TourInstance)
+                    # Redirect to DiadiemThamquanForm for each Lichtrinhtour
+                    return redirect('tour:add_diadiem_thamquan', tour = TourInstance.ma_tour, day_number=1)    
 
         else:
             tour_form = NewTourForm()
@@ -155,9 +100,7 @@ def create_tour(request):
         }
 
         return render(request, 'tour/create_tour.html', context)
-from django.urls import reverse
 
-from django.forms import formset_factory
 
 def add_ngaykhoihanh_tour(request, tour):
     TourInstance = get_object_or_404(Tour, pk=tour)
@@ -206,15 +149,15 @@ def add_diadiem_thamquan(request, tour, day_number):
         
         if diadiem_form.is_valid():
             diadiem = diadiem_form.save(commit=False)
+            diadiem.ma_tour = lichtrinhtour_instance
+            diadiem.stt_ngay = lichtrinhtour_instance
             diadiem.lichtrinhtour = lichtrinhtour_instance
-            diadiem.ma_tour = TourInstance.ma_tour
-            diadiem.stt_ngay = day
             diadiem.save()
             
             if 'save_and_add_another' in request.POST:
                 return redirect('tour:add_diadiem_thamquan', tour = TourInstance.ma_tour, day_number=day)
-            elif 'next_day' in request.POST:
-                return redirect('tour:add_diadiem_thamquan', tour = tour, day_number=day_number + 1)
+            elif 'hdtour' in request.POST:
+                return redirect('tour:add_hanhdong_lichtrinh_tour', tour = TourInstance.ma_tour, day_number=day)
             else:
                 # Handle final submission
                 return redirect('tour:tours')
@@ -225,110 +168,50 @@ def add_diadiem_thamquan(request, tour, day_number):
     context = {
         'diadiem_form': diadiem_form,
         'has_next_day': has_next_day,
+        'day': day  ,
     }
     
     return render(request, 'tour/diadiem_thamquan.html', context)
 
-
-class NewTourView(SessionWizardView):
-    form_list = [NewTourForm, NgayKhoiHanhTourForm]  
-    template_name = 'tour/form.html'
-    condition_dict = {"1": show_ngaykh_tourdaingay_form}
-    diadiemthamquan_list = []
-
-    # def get_context_data(self, form, **kwargs):
-    #     context = super().get_context_data(form=form, **kwargs)
-    #     context['form_list'] = self.get_form_list()
-    #     return context
+def add_hanhdong_lichtrinh_tour(request,tour,day_number):
+    TourInstance = get_object_or_404(Tour, pk=tour)
+    has_next_day = day_number < TourInstance.so_ngay
+    day = day_number
+    lichtrinhtour_instance = get_object_or_404(Lichtrinhtour,ma_tour=tour, stt_ngay=day_number )
+    if request.method == 'POST':
+        hdtour_form = HanhdongLichtrinhtourForm(request.POST)
+        
+        if hdtour_form.is_valid():
+            
+            hdtour = hdtour_form.save(commit=False)
+            hdtour.lichtrinhtour = lichtrinhtour_instance
+            hdtour.ma_tour = lichtrinhtour_instance.ma_tour
+            hdtour.stt_ngay = lichtrinhtour_instance.stt_ngay
+            hdtour.save()
+            if 'save_and_add_another' in request.POST:
+                return redirect('tour:add_hanhdong_lichtrinh_tour   ', tour = TourInstance.ma_tour, day_number=day)
+            elif 'next_day' in request.POST:
+                return redirect('tour:add_diadiem_thamquan', tour = TourInstance.ma_tour, day_number=day +1 )
+            else:
+                # Handle final submission
+                return redirect('tour:tours')
     
-    def post(self, *args, **kwargs):
-
-        form = self.get_form()
-        if self.steps.current == '1':
-            form_data=self.get_form_step_data(form)
-            
-            # self.storage.set_step_files(self.steps.current, self.process_step_files(form))
-            
-            if'save_and_add_another' in self.request.POST:
-                
-                self.diadiemthamquan_list.append(form_data)
-            elif 'wizard_goto_step' in self.request.POST:
-                # self.diadiemthamquan_list.append(form_data)
-                pass
-                    
-
-        return super(NewTourView, self).post(*args, **kwargs)
-
-
-
-
-    def done(self, form_list, **kwargs):
-        form_data = self.get_all_cleaned_data()
-
-        with transaction.atomic():
-            
-            tour_instance = form_list[0] # Save the Tour instance
-            tour_instance.save()
-            TourInstance=Tour.objects.filter(ma_cn = form_data['ma_cn']).order_by('ma_tour').last()
-            
-            if tour_instance.cleaned_data.get('so_dem'):
-                ngaykhtour_instance = form_list[1].save(commit=False)
-                
-
-                ngaykhtour_instance.ma_tour = TourInstance
-                ngaykhtour_instance.save()
-                
-                
-                
-                lichtrinhtour_instance = []
-                for i in range(form_data['so_ngay']):
-                    lichtrinhtour_instance.append(Lichtrinhtour(
-                        ma_tour = TourInstance,
-                        # ngay_khoihanh=ngaybatdau + timedelta(days=i),
-                        stt_ngay= i+1,
-                    ))
-                    lichtrinhtour_instance[i].save()
-
-                    # diadiemthamquan_instance = form_list[2].save(commit=False)
-                    # diadiemthamquan_instance.lichtrinhtour= lichtrinhtour_instance
-                    # diadiemthamquan_instance.save()
-                # for diadiem_data in self.diadiemthamquan_list:
-                diadiemthamquan_instance = form_list[0].save()
-                diadiemthamquan_instance.lichtrinhtour = lichtrinhtour_instance
-                diadiemthamquan_instance.save()
-            # chuyendi_instance.ma_tour = TourInstance
-            # chuyendi_instance.save()
-            
-            # # Calculate the difference between ngayketthuc and ngaybatdau
-            # ngaybatdau = form_data['chuyendi_form']['ngaybatdau']
-            # ngayketthuc = form_data['chuyendi_form']['ngayketthuc']
-            # date_diff = (ngayketthuc - ngaybatdau).days
-            
-            # dvccdvchuyen_forms = []
-            # for i in range(date_diff):
-            #     lichtrinhchuyen_instance = LichtrinhChuyen(
-            #         # ma_tour=form_data['ma_tour'],
-            #         # ngay_khoihanh=ngaybatdau + timedelta(days=i),
-            #         stt_ngay= i,
-            #         chuyendi=chuyendi_instance
-            #     )
-            #     lichtrinhchuyen_instance.save()
-
-            #     dvccdvchuyen_form = form_list[2].cleaned_data
-            #     # Set fields for DvccDvchuyendiForm based on your logic
-            #     dvccdvchuyen_form['lichtrinhchuyen'] = lichtrinhchuyen_instance
-            #     dvccdvchuyen_forms.append(dvccdvchuyen_form)
-
-# Now use the adjusted form_data to create and save instances
-# (Note: You will need to adjust this part based on your actual code structure)
-            # for dvccdvchuyen_form in dvccdvchuyen_forms:
-            #     dvccdvchuyen_instance = DonviccdvChuyenForm(**dvccdvchuyen_form)
-            #     dvccdvchuyen_instance.save()
-                    
+    else:
+        hdtour_form = HanhdongLichtrinhtourForm()
     
-            return HttpResponse('success')
+    context = {
+        'hdtour_form': hdtour_form,
+        'has_next_day': has_next_day,
+        'day': day,
+    }
+    
+    return render(request, 'tour/hdtour.html', context)
 
-
+def buy(request, pk):
+    tour = get_object_or_404(Tour, pk=pk)
+    return render(request, 'tour/buy.html',{
+        'tour':tour,
+    })
 @login_required
 def edit(request, pk):
     tour = get_object_or_404(Tour, pk=pk)

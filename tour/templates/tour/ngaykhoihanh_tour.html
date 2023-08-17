@@ -1,14 +1,37 @@
 {% extends 'core/base.html' %}
 
 {% block content %}
-  <h2>Add NgayKhoiHanhTourdai</h2>
-  <form method="post">
+<div class="form-container">
+  <h1 class="form-heading">Thêm ngày khởi hành cho Tour</h1>
+  <form  method="post">
+    {%if tour_form.errors%}
+    <div class="alert alert-warning" role="alert">
+        Dữ liệu gửi lên không đúng, xin vui lòng kiểm tra lại!
+      </div>
+    {%endif%}
+
     {% csrf_token %}
     {{ formset.management_form }}
     {% for form in formset %}
-      {{ form.as_p }}
+    <table class="mt-4 w-full">
+      {% comment %} {{ tour_form.as_p }} {% endcomment %}
+      {% for field in form %}
+          <div class="form-field">
+              <div class="form-input-row">
+                  <label class="form-label" for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
+                  {{ field }}
+              </div>
+              <div class="error-message" style="color: red;">
+                  {{ field.errors }}
+              </div>
+          </div>
+      {% endfor %}
+      </table>
     {% endfor %}
-    <button type="submit" name="save_and_add_another">Save and Add Another</button>
-    <button type="submit" name ="next">Next</button>
+    <button type="submit" class="form-button-primary form-button" name="save_and_add_another">Save and Add Another</button>
+    <button type="submit" class="form-button-primary form-button" name ="next">Next</button>
   </form>
+  
+</div>
 {% endblock %}
+  

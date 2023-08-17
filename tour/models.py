@@ -34,6 +34,21 @@ class Status(models.TextChoices):
     AVAILABLE='AVAIL','Available'
     ON_HOLD = 'HLD', 'On Hold'
 
+class Loaidichvu(models.IntegerChoices):
+    KHACHSAN = 1, 'Khách san'
+    DONVIVANCHUYEN=2,'Đơn vị vận chuyển'
+    NHAHANG = 3, 'Nhà hàng'
+    
+class HDLichtrinhTour(models.IntegerChoices):
+    KHOIHANH = 1, 'Khởi hành tour'
+    KETTHUC=2,'Kết thúc tour'
+    ANSANG = 3, 'Ăn sáng'
+    ANTRUA = 4, 'Ăn trưa'
+    ANTOI = 5, 'Ăn tối'
+    CHECKIN = 6, 'Check in'
+    CHECKOUT =7, 'Check out'
+    
+    
 class ChiNhanh(models.Model):
     ma_cn = models.CharField(primary_key=True, max_length=8)
     ten_cn = models.CharField(unique=True, max_length=40)
@@ -51,7 +66,6 @@ class ChiNhanh(models.Model):
         # ChiNhanh.ma_nvql.save()
         return self.ten_cn
 
-
 class Chuyendi(models.Model):
     id = CompositeKey(columns= ['ma_tour', 'ngay_khoihanh'])
     ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
@@ -64,7 +78,6 @@ class Chuyendi(models.Model):
         db_table = 'chuyendi'
         # unique_together = (('ma_tour', 'ngay_khoihanh'),)
 
- 
 class DiadiemThamquan(models.Model):
     id = CompositeKey(columns=['ma_tour','stt_ngay','ma_diem'])
     
@@ -77,15 +90,15 @@ class DiadiemThamquan(models.Model):
         ("stt_ngay", "stt_ngay"),
     ]))
     
-    thoigian_batdau = models.DateField(blank=True, null=True)
-    thoigian_ketthuc = models.DateField(blank=True, null=True)
+    thoigian_batdau = models.TimeField(blank=True, null=True)
+    thoigian_ketthuc = models.TimeField(blank=True, null=True)
     mo_ta = models.TextField(blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'diadiem_thamquan'
         # unique_together = (('ma_tour', 'stt_ngay', 'ma_diem'),)
-
+        
 class DiemDulich(models.Model):
     ma_diem = models.AutoField(primary_key=True)
     ten_diem = models.CharField(max_length=30)
@@ -125,14 +138,17 @@ class DonviCungcap(models.Model):
     class Meta:
         managed = False
         db_table = 'donvi_cungcap'
-
+    def __str__(self):
+        return self.ten_donvi
 
 class DvccDvchuyendi(models.Model):
     id = CompositeKey(columns=['ma_tour', 'ngay_khoihanh', 'stt_ngay', 'loai', 'ma_donvi'])
     ma_tour = models.CharField(db_column='ma_tour', max_length=12)
     ngay_khoihanh = models.DateField(db_column='ngay_khoihanh')
     stt_ngay = models.IntegerField()
-    loai = models.IntegerField()
+    loai = models.IntegerField(
+        choices=Loaidichvu.choices,  # Use the choices defined in the Category model
+    )    
     ma_donvi = models.ForeignKey(DonviCungcap, models.DO_NOTHING, db_column='ma_donvi')
     lichtrinhchuyen  = CompositeForeignKey( 'LichtrinhChuyen', on_delete=CASCADE, related_name='lichtrinhchuyen', to_fields=OrderedDict([
         ("ma_tour", "ma_tour"),
@@ -157,13 +173,19 @@ class DvccDvlq(models.Model):
 
 
 class HanhdongLichtrinhtour(models.Model):
-    ma_tour = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='ma_tour', related_name='hanhdong_lich')
-    stt_ngay = models.ForeignKey('Lichtrinhtour', models.DO_NOTHING, db_column='stt_ngay', related_name='hanhdong_lichtrinhtour_stt_ngay')
-    loai_hanhdong = models.IntegerField()
-    thoigian_batdau = models.DateField(blank=True, null=True)
-    thoigian_ketthuc = models.DateField(blank=True, null=True)
+    
+    ma_tour = models.CharField(db_column='ma_tour', max_length=12)
+    stt_ngay = models.IntegerField()
+    loai_hanhdong = models.IntegerField(
+        choices=HDLichtrinhTour.choices,  # Use the choices defined in the Category model
+    )   
+    thoigian_batdau = models.TimeField(blank=True, null=True)
+    thoigian_ketthuc = models.TimeField(blank=True, null=True)
     mo_ta = models.TextField(blank=True, null=True)
-
+    lichtrinhtour  = CompositeForeignKey( 'Lichtrinhtour', on_delete=CASCADE, related_name='lichtrinhchuyen', to_fields=OrderedDict([
+        ("ma_tour", "ma_tour"),
+        ('stt_ngay', 'stt_ngay'),
+    ]))
     class Meta:
         managed = False
         db_table = 'hanhdong_lichtrinhtour'
@@ -182,7 +204,7 @@ class HdvChuyendi(models.Model):
 
 
 class LichtrinhChuyen(models.Model):
-    # id = CompositeKey(['ma_tour', 'ngay_khoihanh', 'stt_ngay'])
+    id = CompositeKey(['ma_tour', 'ngay_khoihanh', 'stt_ngay'])
     
 
     ma_tour = models.CharField(db_column='ma_tour', max_length=12)
@@ -254,8 +276,8 @@ class Tour(models.Model):
     giave_kd_treem = models.IntegerField()
     sokhach_toithieu = models.IntegerField()
     sokhachdoan_toithieu = models.IntegerField(blank=True, null=True)
-    so_dem = models.IntegerField()
-    so_ngay = models.IntegerField()
+    so_dem = models.IntegerField(blank= True, null= True)
+    so_ngay = models.IntegerField(blank= True,null= True, default = 1)
     ma_cn = models.ForeignKey(ChiNhanh, models.DO_NOTHING, db_column='ma_cn')
 
     class Meta:
@@ -264,6 +286,11 @@ class Tour(models.Model):
 
     def __str__(self):
         return self.ten_tour
+    def clean(self):
+        if self.so_dem - self.so_ngay > 0:
+            raise ValidationError({'so_dem':_('Số đêm không được quá lơn so với số ngày')})
+        if abs(self.so_dem - self.so_ngay) > 1:
+            raise ValidationError({'so_ngay':_('Số đêm không được quá lơn so với số ngày')})
 
 class City(models.TextChoices):
     AN_GIANG = 'AG', 'An Giang'
