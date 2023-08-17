@@ -3,7 +3,8 @@ from django.contrib import messages
 from django.forms import formset_factory
 from django.urls import reverse
 from django.shortcuts import render, redirect
-from .models import Category, Tour, Info, NgaykhoihanhTourdai, DiadiemThamquan, Lichtrinhtour, DiemDulich
+from core.models import KhachDoan, KhachHang, KhachDoanLe, Phieudk
+from .models import Category, Tour, Info, NgaykhoihanhTourdai, DiadiemThamquan, Lichtrinhtour, DiemDulich, Chuyendi
 from .forms import NewTourForm, EditTourForm, NewTourInfoForm, NgayKhoiHanhTourForm, HanhdongLichtrinhtourForm, HdvChuyendiForm, LichtrinhChuyenForm, LichtrinhtourForm, DiadiemThamquanForm, ChuyenDiForm
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
@@ -55,8 +56,31 @@ def detail(request, pk):
 
 def buy(request, pk):
     tour = get_object_or_404(Tour, pk=pk)
+    chuyendi = Chuyendi.objects.filter(ma_tour=pk)
+    if request.method == 'POST':
+        full_name = request.POST['name']
+        email = request.POST['email']
+        phone = request.POST['phone']
+        participants = request.POST['participants']
+        departure_date = request.POST['departure_date']
+        existing_khachdoan = KhachDoan.objects.filter(email=email, sdt=phone).first()
+        if existing_khachdoan:
+            khachdoan = existing_khachdoan
+        else:
+            # Create a new KhachDoan instance if not exists
+            khachdoan = KhachDoan.objects.create(
+                ten_coquan=full_name,
+                email=email,
+                sdt=phone,
+            )
+        khachhang = KhachHang.objects.create(...)
+        khachdoanle = KhachDoanLe.objects.create(...)
+        phieudk = Phieudk.objects.create(...)
+        return redirect('booking_success')  # Redirect to a success page
+    
     return render(request, 'tour/buy.html',{
-        'tour':tour,
+        'tour': tour,
+        'chuyendi': chuyendi,
     })
 
 # @login_required
