@@ -49,10 +49,12 @@ def tours(request):
 def detail(request, pk):
 
     tour = get_object_or_404(Tour, pk=pk)
+    related_tours = Tour.objects.filter(ma_cn=tour.ma_cn)
     diadiem_thamquan = DiadiemThamquan.objects.filter(ma_tour=pk)
     return render(request, 'tour/detail.html', {
         'tour': tour,
         'diadiem_thamquan': diadiem_thamquan,
+        'related_tours': related_tours,
     })
 
 def create_tour(request):

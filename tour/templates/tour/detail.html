@@ -261,14 +261,14 @@
                     </div>
                     <a href="{% url 'tour:buy' tour.pk %}" class="buy-button">Buy</a>
                 </div>
-                {% comment %} <h2 class="text-xl font-semibold">Related Items</h2>
+                <h2 class="text-xl font-semibold">Related Tours</h2>
                 <ul>
-                    {% for tour in related_tours %}
+                    {% for related_tour in related_tours %}
                         <li>
-                            <a href="{% url 'tour:detail' tour.pk %}">{{ tour.ten_tour }}</a>
+                            <a href="{% url 'tour:detail' tour.pk %}">{{ related_tour.ten_tour }}</a>
                         </li>
                     {% endfor %}
-                </ul> {% endcomment %}
+                </ul>
             </div>
         </div>
     </div>
