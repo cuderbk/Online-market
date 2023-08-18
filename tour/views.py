@@ -228,6 +228,7 @@ def buy(request, pk):
                         email = email,
                         sdt = phone,
                         dia_chi = data['address'],
+                        ngay_sinh = data['birth'],
                 )
                 
             # if data['participants'] >= tour.sokhachdoan_toithieu:
