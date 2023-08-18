@@ -54,41 +54,52 @@ def detail(request, pk):
         'tour': tour,
         'diadiem_thamquan': diadiem_thamquan,
     })
-
+@transaction.atomic
+@login_required
 def create_tour(request):
-        if request.method == 'POST':
-            tour_form = NewTourForm(request.POST)
-            ngay_khoi_hanh_form = NgayKhoiHanhTourForm(request.POST)
-            lichtrinhtour_form = LichtrinhtourForm(request.POST)
+    if request.method == 'POST':
+        # Tạo các phiên bản của các biểu mẫu tương ứng dựa trên dữ liệu POST
+        tour_form = NewTourForm(request.POST)
+        ngay_khoi_hanh_form = NgayKhoiHanhTourForm(request.POST)
+        lichtrinhtour_form = LichtrinhtourForm(request.POST)
 
-            if tour_form.is_valid():
-                tour = tour_form.save(commit=False)
-                has_ngay = tour.so_ngay > 0
-                tour.save()
-                TourInstance=Tour.objects.filter(ma_cn = tour.ma_cn).order_by('ma_tour').last()
-                if has_ngay:
-                    return redirect('tour:add_ngaykhoihanh_tour', tour = TourInstance.ma_tour)
-                else:
-                    lichtrinhtour_instance = Lichtrinhtour(stt_ngay=1, ma_tour=TourInstance)
-                    lichtrinhtour_instance.save()
+        if tour_form.is_valid():
+            # Tạo một phiên bản tour mới dựa trên dữ liệu biểu mẫu hợp lệ
+            tour = tour_form.save(commit=False)
+            has_ngay = tour.so_ngay > 0
+            tour.save()
 
-                    # Redirect to DiadiemThamquanForm for each Lichtrinhtour
-                    return redirect('tour:add_diadiem_thamquan', tour = TourInstance.ma_tour, day_number=1)    
+            # Lấy phiên bản tour vừa tạo mới nhất
+            TourInstance = Tour.objects.filter(ma_cn=tour.ma_cn).order_by('ma_tour').last()
 
-        else:
-            tour_form = NewTourForm()
-            ngay_khoi_hanh_form = NgayKhoiHanhTourForm()
-            lichtrinhtour_form = LichtrinhtourForm()
+            if has_ngay:
+                # Chuyển hướng để thêm ngày bắt đầu cho tour
+                return redirect('tour:add_ngaykhoihanh_tour', tour=TourInstance.ma_tour)
+            else:
+                # Nếu không có ngày bắt đầu, tạo lịch trình mặc định cho tour và chuyển hướng
+                lichtrinhtour_instance = Lichtrinhtour(stt_ngay=1, ma_tour=TourInstance)
+                lichtrinhtour_instance.save()
 
-        context = {
-            'tour_form': tour_form,
-            'ngay_khoi_hanh_form': ngay_khoi_hanh_form,
-            'lichtrinhtour_form': lichtrinhtour_form,
-        }
+                # Chuyển hướng để thêm địa điểm tham quan cho ngày đầu tiên của tour
+                return redirect('tour:add_diadiem_thamquan', tour=TourInstance.ma_tour, day_number=1)
+    else:
+        # Nếu phương thức request không phải là POST, tạo phiên bản trống của các biểu mẫu
+        tour_form = NewTourForm()
+        ngay_khoi_hanh_form = NgayKhoiHanhTourForm()
+        lichtrinhtour_form = LichtrinhtourForm()
 
-        return render(request, 'tour/create_tour.html', context)
+    # Chuẩn bị ngữ cảnh với các phiên bản biểu mẫu để hiển thị trên giao diện
+    context = {
+        'tour_form': tour_form,
+        'ngay_khoi_hanh_form': ngay_khoi_hanh_form,
+        'lichtrinhtour_form': lichtrinhtour_form,
+    }
+
+    # Hiển thị giao diện create_tour.html với ngữ cảnh đã chuẩn bị
+    return render(request, 'tour/create_tour.html', context)
 
 
+@login_required
 def add_ngaykhoihanh_tour(request, tour):
     TourInstance = get_object_or_404(Tour, pk=tour)
     NgayKhoiHanhFormSet = formset_factory(NgayKhoiHanhTourForm, extra=1)
@@ -125,7 +136,7 @@ def add_ngaykhoihanh_tour(request, tour):
     
     return render(request, 'tour/ngaykhoihanh_tour.html', context)
 
-
+@login_required
 def add_diadiem_thamquan(request, tour, day_number):
     TourInstance = get_object_or_404(Tour, pk=tour)
     has_next_day = day_number < TourInstance.so_ngay
@@ -147,7 +158,7 @@ def add_diadiem_thamquan(request, tour, day_number):
                 return redirect('tour:add_hanhdong_lichtrinh_tour', tour = TourInstance.ma_tour, day_number=day)
             else:
                 # Handle final submission
-                return redirect('tour:tours')
+                return redirect('tour:detail', pk = TourInstance.ma_tour)
     
     else:
         diadiem_form = DiadiemThamquanForm()
@@ -159,7 +170,7 @@ def add_diadiem_thamquan(request, tour, day_number):
     }
     
     return render(request, 'tour/diadiem_thamquan.html', context)
-
+@login_required
 def add_hanhdong_lichtrinh_tour(request,tour,day_number):
     TourInstance = get_object_or_404(Tour, pk=tour)
     has_next_day = day_number < TourInstance.so_ngay
@@ -170,18 +181,18 @@ def add_hanhdong_lichtrinh_tour(request,tour,day_number):
         
         if hdtour_form.is_valid():
             
-            hdtour = hdtour_form.save(commit=False)
+            hdtour = hdtour_form.save(commit=False)      
+            hdtour.ma_tour = lichtrinhtour_instance
+            hdtour.stt_ngay = lichtrinhtour_instance
             hdtour.lichtrinhtour = lichtrinhtour_instance
-            hdtour.ma_tour = lichtrinhtour_instance.ma_tour
-            hdtour.stt_ngay = lichtrinhtour_instance.stt_ngay
             hdtour.save()
             if 'save_and_add_another' in request.POST:
-                return redirect('tour:add_hanhdong_lichtrinh_tour   ', tour = TourInstance.ma_tour, day_number=day)
+                return redirect('tour:add_hanhdong_lichtrinh_tour', tour = TourInstance.ma_tour, day_number=day)
             elif 'next_day' in request.POST:
                 return redirect('tour:add_diadiem_thamquan', tour = TourInstance.ma_tour, day_number=day +1 )
             else:
                 # Handle final submission
-                return redirect('tour:tours')
+                return redirect('tour:detail')
     
     else:
         hdtour_form = HanhdongLichtrinhtourForm()

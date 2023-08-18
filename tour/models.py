@@ -97,7 +97,7 @@ class DiadiemThamquan(models.Model):
     class Meta:
         managed = False
         db_table = 'diadiem_thamquan'
-        # unique_together = (('ma_tour', 'stt_ngay', 'ma_diem'),)
+        unique_together = (('ma_tour', 'stt_ngay', 'ma_diem'),)
         
 class DiemDulich(models.Model):
     ma_diem = models.AutoField(primary_key=True)
@@ -173,8 +173,8 @@ class DvccDvlq(models.Model):
 
 
 class HanhdongLichtrinhtour(models.Model):
-    
-    ma_tour = models.CharField(db_column='ma_tour', max_length=12)
+    id = CompositeKey(columns=['ma_tour','stt_ngay','loai_hanhdong'])
+    ma_tour = models.CharField( max_length=12)
     stt_ngay = models.IntegerField()
     loai_hanhdong = models.IntegerField(
         choices=HDLichtrinhTour.choices,  # Use the choices defined in the Category model
@@ -234,7 +234,7 @@ class Lichtrinhtour(models.Model):
 
 class NgaykhoihanhTourdai(models.Model):
     id = CompositeKey(columns=['ma_tour', 'ngay'])
-    ma_tour = models.ForeignKey('Tour', models.DO_NOTHING, db_column='ma_tour')
+    ma_tour = models.ForeignKey('Tour', models.CASCADE, db_column='ma_tour')
     ngay = models.IntegerField()
 
     class Meta:
@@ -266,8 +266,8 @@ class SoDienThoaiChiNhanh(models.Model):
 
 class Tour(models.Model):
     ma_tour = models.CharField(primary_key=True, max_length=12)
-    ten_tour = models.CharField(max_length=40, unique = True)
-    anh = models.TextField(blank=True, null=True, max_length=200)
+    ten_tour = models.CharField(max_length=200)
+    anh = models.TextField(blank=True, null=True)
     ngay_batdau = models.DateField()
     sokhach_toida = models.IntegerField()
     giave_kl_nguoilon = models.IntegerField()
@@ -278,7 +278,7 @@ class Tour(models.Model):
     sokhachdoan_toithieu = models.IntegerField(blank=True, null=True)
     so_dem = models.IntegerField(blank= True, null= True)
     so_ngay = models.IntegerField(blank= True,null= True, default = 1)
-    ma_cn = models.ForeignKey(ChiNhanh, models.DO_NOTHING, db_column='ma_cn')
+    ma_cn = models.ForeignKey(ChiNhanh, models.CASCADE, db_column='ma_cn')
 
     class Meta:
         managed = False
@@ -291,7 +291,8 @@ class Tour(models.Model):
             raise ValidationError({'so_dem':_('Số đêm không được quá lơn so với số ngày')})
         if abs(self.so_dem - self.so_ngay) > 1:
             raise ValidationError({'so_ngay':_('Số đêm không được quá lơn so với số ngày')})
-
+        if self.giave_kl_nguoilon < self.giave_kl_treem:
+            raise ValidationError({'giave_kl_nguoilon':_('Giá vé người lớn phải lớn hơn giá vé trả em')})
 class City(models.TextChoices):
     AN_GIANG = 'AG', 'An Giang'
     BA_RIA_VUNG_TAU = 'BRVT', 'Ba Ria - Vung Tau'
