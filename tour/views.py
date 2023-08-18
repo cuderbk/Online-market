@@ -218,30 +218,19 @@ def buy(request, pk):
             data = form.cleaned_data
             email = data['email']
             phone = data['phone']
+            ho_ten = data['name']
             chuyendi = Chuyendi.objects.filter(ma_tour=pk, ngay_khoihanh=data['departure_date']).first()
-            existing_khachhang = KhachHang.objects.filter(email=email, sdt=phone).first()
+            existing_khachhang = KhachHang.objects.filter(ho_ten=ho_ten, email=email, sdt=phone).first()
             if existing_khachhang:
                 khach_hang = existing_khachhang
             else:
                 khach_hang = KhachHang.objects.create(
-                        ho_ten = data['name'],
+                        ho_ten = ho_ten,
                         email = email,
                         sdt = phone,
                         dia_chi = data['address'],
                         ngay_sinh = data['birth'],
                 )
-                
-            # if data['participants'] >= tour.sokhachdoan_toithieu:
-            #     khach_doan = KhachDoan.objects.create(
-            #         ma_daidien = khach_hang
-            #     )
-
-            # if KhachDoan.objects.filter(ma_doan=data['group']).exists():
-            #         khach_doan = KhachDoan.objects.filter(ma_doan=data['group']).first()
-            #         khach_doan_le = KhachDoanLe.objects.create(
-            #             ma_doan = khach_doan,
-            #             ma_kh = khach_hang
-            #         )
                 
             phieudk = Phieudk.objects.create(
                 ngay_dangky=today,
@@ -251,9 +240,6 @@ def buy(request, pk):
                 ngay_khoihanh=chuyendi.ngay_khoihanh,
                 chuyendi=chuyendi
             )
-            
-            # for key, value in khach_doan.__dict__.items():
-            #     print(f"{key}: {value}")
             return render(request, 'tour/booking_success.html')  # Redirect to a success page
     else:
         form = BookingForm()

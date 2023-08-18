@@ -14,6 +14,5 @@ def index(request):
         with connection.cursor() as cursor:
             cursor.callproc('cau_I_3_ThongKeDoanhThu', [year])
             results = cursor.fetchall()
-        # return HttpResponse(results)
         return render(request, 'dashboard/index.html', {'results': results})
     return render(request, 'dashboard/index.html', {'form': form})
