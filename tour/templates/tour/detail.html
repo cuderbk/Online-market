@@ -230,7 +230,7 @@
                 <div class="tour-info">
                     <h2>Thông tin tour</h2>
                     <div class="tour-detail">
-                        <strong>Thời gian:</strong> {{tour.so_ngay}} ngày {{tour.so_dem}} đêm
+                        <strong>Thời gian:</strong> {{tour.so_ngay}} ngày {% if tour.so_dem > 0 %}{{tour.so_dem}} đêm {% endif %} 
                     </div>
                     <div class="tour-detail">
                         <strong>Khởi hành:</strong> {{tour.ngay_batdau}}
@@ -261,12 +261,11 @@
                     </div>
                     <a href="{% url 'tour:buy' tour.pk %}" class="buy-button">Buy</a>
                 </div>
-                <h2 class="text-xl font-semibold">Related Items</h2>
+                <h2 class="text-xl font-semibold">Related Tours</h2>
                 <ul>
-                    <p>
-                    {% for tour in related_tours %}
+                    {% for related_tour in related_tours %}
                         <li>
-                            <a href="{% url 'tour:detail' tour.pk %}">{{ tour.ten_tour }}</a>
+                            <a href="{% url 'tour:detail' tour.pk %}">{{ related_tour.ten_tour }}</a>
                         </li>
                     {% endfor %}
                 </ul>
